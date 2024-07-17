@@ -6,8 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
@@ -17,32 +16,59 @@ type RootStackParamList = {
 };
 
 type State = {
+  fullName: string;
   email: string;
   password: string;
+  confirmPassword: string;
 };
 
 type Action =
+  | { type: "SET_FULL_NAME"; payload: string }
   | { type: "SET_EMAIL"; payload: string }
-  | { type: "SET_PASSWORD"; payload: string };
+  | { type: "SET_PASSWORD"; payload: string }
+  | { type: "SET_CONFIRM_PASSWORD"; payload: string };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
+    case "SET_FULL_NAME":
+      return { ...state, fullName: action.payload };
     case "SET_EMAIL":
       return { ...state, email: action.payload };
     case "SET_PASSWORD":
       return { ...state, password: action.payload };
+    case "SET_CONFIRM_PASSWORD":
+      return { ...state, confirmPassword: action.payload };
     default:
       return state;
   }
 };
 
-const LoginScreen = () => {
-  const [state, dispatch] = useReducer(reducer, { email: "", password: "" });
-
+const SignUpScreen = () => {
+  const [state, dispatch] = useReducer(reducer, {
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const navigation = useNavigation();
+  navigation.setOptions({
+    headerTitle: "",
+  });
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <Text style={styles.subtitle}>Please sign in to continue.</Text>
+      <Text style={styles.title}>Create Account</Text>
+      <View style={styles.inputContainer}>
+        <MaterialCommunityIcons name="account-outline" size={20} color="#999" />
+        <TextInput
+          style={styles.input}
+          placeholder="Full Name"
+          placeholderTextColor="#999"
+          value={state.fullName}
+          onChangeText={(text) =>
+            dispatch({ type: "SET_FULL_NAME", payload: text })
+          }
+        />
+      </View>
       <View style={styles.inputContainer}>
         <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
         <TextInput
@@ -67,25 +93,32 @@ const LoginScreen = () => {
             dispatch({ type: "SET_PASSWORD", payload: text })
           }
         />
-        <TouchableOpacity
-          onPress={() => {
-            /* handle forgot password */
-          }}
-        >
-          <Text style={styles.forgotText}>Forgot</Text>
-        </TouchableOpacity>
+      </View>
+      <View style={styles.inputContainer}>
+        <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm Password"
+          placeholderTextColor="#999"
+          secureTextEntry
+          value={state.confirmPassword}
+          onChangeText={(text) =>
+            dispatch({ type: "SET_CONFIRM_PASSWORD", payload: text })
+          }
+        />
       </View>
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
-          /* handle login */
+          /* handle sign up */
         }}
       >
-        <Text style={styles.buttonText}>LOGIN</Text>
+        <Text style={styles.buttonText}>SIGN UP</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push("/(tabs)/Signup")}>
+      <TouchableOpacity onPress={() => router.back()}>
         <Text style={styles.signUpText}>
-          Don't have an account? <Text style={styles.signUpLink}>Sign up</Text>
+          Already have an account?
+          <Text style={styles.signUpLink}>Sign in</Text>
         </Text>
       </TouchableOpacity>
     </View>
@@ -96,30 +129,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    gap: 15,
     alignItems: "center",
     padding: 20,
+    gap: 20,
     backgroundColor: "#fff",
   },
   title: {
-    fontSize: 32,
-    fontWeight: "800",
+    fontSize: 28,
+    fontWeight: "900",
     fontVariant: ["small-caps"],
-    marginBottom: 10,
-    marginLeft: "-67%",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#999",
+    marginLeft: "-30%",
     marginBottom: 20,
-    marginLeft: "-40%",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    width: "95%",
-    borderColor: "#dddddd",
-    borderWidth: 2,
+    width: "100%",
+    borderColor: "#ddd",
+    borderWidth: 1,
     borderRadius: 8,
     marginBottom: 15,
     paddingHorizontal: 10,
@@ -130,11 +157,6 @@ const styles = StyleSheet.create({
     height: 40,
     paddingHorizontal: 10,
     color: "#333",
-    borderBlockColor: "#ddd",
-  },
-  forgotText: {
-    color: "#ff9f00",
-    fontSize: 14,
   },
   button: {
     backgroundColor: "#ff9f00",
@@ -159,4 +181,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default SignUpScreen;
