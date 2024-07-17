@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "900",
     fontVariant: ["small-caps"],
-    marginLeft: "-30%",
+    marginLeft: "-40%",
     marginBottom: 20,
   },
   inputContainer: {
