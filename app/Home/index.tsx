@@ -24,7 +24,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { router } from "expo-router";
 
-
 const { width, height } = Dimensions.get("window");
 
 export default function TabLayout() {
@@ -66,7 +65,7 @@ export default function TabLayout() {
                   { fontSize: width * 0.045 },
                 ]}
               >
-                Dr Henry Cavil
+                Henry Cavil
               </Text>
               <TouchableOpacity style={tw`ml-3`}>
                 <ChevronDownIcon size={20} color={"blue"} />
@@ -113,7 +112,9 @@ export default function TabLayout() {
                   tw`bg-white rounded-[50px] px-5`,
                   { width: "60%", height: height * 0.2 },
                 ]}
-                onPress={() => {}}
+                onPress={() => {
+                  router.push("/Home/UserList");
+                }}
               >
                 <View style={tw`flex flex-row justify-between mt-5`}>
                   <UsersIcon size={35} color={"blue"} />
@@ -165,7 +166,9 @@ export default function TabLayout() {
                       backgroundColor: "white",
                     },
                   ]}
-                  onPress={() => {}}
+                  onPress={() => {
+                    router.push("/Home/TodoList");
+                  }}
                 >
                   <ArrowUpRightIcon size={26} color={"blue"} />
                 </TouchableOpacity>
@@ -199,7 +202,7 @@ export default function TabLayout() {
                     { width: "38%", height: height * 0.18 },
                   ]}
                   onPress={() => {
-                    router.replace("(tabs)/issues");
+                    router.push("/Home/Issues");
                   }}
                 >
                   <View style={tw`mt-5 ml-5`}>
