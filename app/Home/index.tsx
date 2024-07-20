@@ -24,6 +24,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { router } from "expo-router";
 
+
 const { width, height } = Dimensions.get("window");
 
 export default function TabLayout() {
@@ -197,7 +198,9 @@ export default function TabLayout() {
                     tw`bg-white rounded-[50px] ml-2`,
                     { width: "38%", height: height * 0.18 },
                   ]}
-                  onPress={() => {}}
+                  onPress={() => {
+                    router.replace("(tabs)/issues");
+                  }}
                 >
                   <View style={tw`mt-5 ml-5`}>
                     <RectangleStackIcon size={35} color={"blue"} />
