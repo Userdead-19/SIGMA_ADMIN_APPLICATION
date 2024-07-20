@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useState } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-
 import { RouteProp } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -38,52 +37,81 @@ const reducer = (state: State, action: Action): State => {
 
 const LoginScreen = () => {
   const [state, dispatch] = useReducer(reducer, { email: "", password: "" });
+  const [isEmailFocused, setEmailFocused] = useState(false);
+  const [isPasswordFocused, setPasswordFocused] = useState(false);
+  const [secureText, setSecureText] = useState(true);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <Text style={styles.subtitle}>Please sign in to continue.</Text>
-      <View style={styles.inputContainer}>
+      <View style={{ padding: 20 }}>
+        <Text style={styles.title}>Login</Text>
+        <Text style={styles.subtitle}>Please sign in to continue.</Text>
+      </View>
+      <View
+        style={[
+          styles.inputContainer,
+          isEmailFocused && styles.inputContainerFocused,
+        ]}
+      >
         <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
         <TextInput
           style={styles.input}
           placeholder="Email"
           placeholderTextColor="#999"
           value={state.email}
+          onFocus={() => setEmailFocused(true)}
+          onBlur={() => setEmailFocused(false)}
           onChangeText={(text) =>
             dispatch({ type: "SET_EMAIL", payload: text })
           }
         />
       </View>
-      <View style={styles.inputContainer}>
+      <View
+        style={[
+          styles.inputContainer,
+          isPasswordFocused && styles.inputContainerFocused,
+        ]}
+      >
         <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
         <TextInput
           style={styles.input}
           placeholder="Password"
           placeholderTextColor="#999"
-          secureTextEntry
+          secureTextEntry={secureText}
           value={state.password}
+          onFocus={() => setPasswordFocused(true)}
+          onBlur={() => setPasswordFocused(false)}
           onChangeText={(text) =>
             dispatch({ type: "SET_PASSWORD", payload: text })
           }
         />
         <TouchableOpacity
           onPress={() => {
-            /* handle forgot password */
+            setSecureText(!secureText);
           }}
         >
-          <Text style={styles.forgotText}>Forgot</Text>
+          <MaterialCommunityIcons
+            name={secureText ? "eye" : "eye-off"}
+            size={20}
+            color="#999"
+          />
         </TouchableOpacity>
       </View>
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
-          /* handle login */
+          router.replace("/Home");
         }}
       >
         <Text style={styles.buttonText}>LOGIN</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push("/(tabs)/Signup")}>
+      <TouchableOpacity
+        onPress={() => router.push("/(tabs)/Signup")}
+        style={{
+          position: "absolute",
+          bottom: "4%",
+        }}
+      >
         <Text style={styles.signUpText}>
           Don't have an account? <Text style={styles.signUpLink}>Sign up</Text>
         </Text>
@@ -105,8 +133,8 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "800",
     fontVariant: ["small-caps"],
-    marginBottom: 10,
-    marginLeft: "-67%",
+    marginBottom: 5,
+    marginLeft: "-40%",
   },
   subtitle: {
     fontSize: 16,
@@ -119,11 +147,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "95%",
     borderColor: "#dddddd",
-    borderWidth: 2,
+    borderBottomWidth: 2,
     borderRadius: 8,
     marginBottom: 15,
     paddingHorizontal: 10,
     paddingVertical: 5,
+  },
+  inputContainerFocused: {
+    elevation: 5,
+    shadowColor: "#dddddd",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
   },
   input: {
     flex: 1,

@@ -56,7 +56,16 @@ const SignUpScreen = () => {
   });
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
+      <View
+        style={{
+          padding: 5,
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text style={styles.title}>Create Account</Text>
+      </View>
       <View style={styles.inputContainer}>
         <MaterialCommunityIcons name="account-outline" size={20} color="#999" />
         <TextInput
@@ -115,7 +124,14 @@ const SignUpScreen = () => {
       >
         <Text style={styles.buttonText}>SIGN UP</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity
+        onPress={() => router.back()}
+        style={{
+          position: "absolute",
+          bottom: 0,
+          marginBottom: "4%",
+        }}
+      >
         <Text style={styles.signUpText}>
           Already have an account?
           <Text style={styles.signUpLink}>Sign in</Text>
@@ -131,14 +147,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    gap: 20,
+    gap: 15,
     backgroundColor: "#fff",
   },
   title: {
     fontSize: 28,
     fontWeight: "900",
     fontVariant: ["small-caps"],
-    marginLeft: "-40%",
+    marginLeft: "-30%",
     marginBottom: 20,
   },
   inputContainer: {
@@ -146,7 +162,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     borderColor: "#ddd",
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderRadius: 8,
     marginBottom: 15,
     paddingHorizontal: 10,
