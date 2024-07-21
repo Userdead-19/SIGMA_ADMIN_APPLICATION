@@ -11,6 +11,7 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { ArrowUpRightIcon, UserIcon } from "react-native-heroicons/outline";
 import tw from "twrnc";
+import { router } from "expo-router";
 const { width } = Dimensions.get("window");
 
 interface CardProps {
@@ -46,7 +47,14 @@ const Card = ({ issue }: { issue: CardProps }) => (
       </View>
       <TouchableOpacity
         style={tw`bg-blue-500 p-4  mx-[5%] rounded-full  ml-10  flex-row justify-center items-center gap-2`}
-        // onPress={() => router.push({pathname: "/Diagnosis", params: patient})}
+        onPress={() => {
+          router.push({
+            pathname: "/IssueDetails",
+            params: {
+              issue: JSON.stringify(issue),
+            },
+          });
+        }}
       >
         <ArrowUpRightIcon size={20} color={"white"} />
       </TouchableOpacity>
