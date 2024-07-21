@@ -7,10 +7,10 @@ import {
   Dimensions,
   Image,
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { UserIcon } from "react-native-heroicons/outline";
-
+import { ArrowUpRightIcon, UserIcon } from "react-native-heroicons/outline";
+import tw from "twrnc";
 const { width } = Dimensions.get("window");
 
 interface CardProps {
@@ -21,52 +21,38 @@ interface CardProps {
   dateTime: string;
 }
 
-const Card: React.FC<CardProps> = ({
-  mainText,
-  block,
-  type,
-  userName,
-  dateTime,
-}) => {
-  const navigation = useNavigation();
-
-  return (
-    <View style={styles.card}>
-      <Text style={styles.mainText}>{mainText}</Text>
-      <View style={styles.dateTimeContainer}>
-        <View style={styles.dateTimeItem}>
-          <Text style={styles.dateTimeHeading}>Block</Text>
-          <Text style={styles.dateTimeValue}>{block}</Text>
-        </View>
-        <View style={styles.dateTimeItem}>
-          <Text style={styles.dateTimeHeading}>Type</Text>
-          <Text style={styles.dateTimeValue}>{type}</Text>
-        </View>
+const Card = ({ issue }: { issue: CardProps }) => (
+  <View style={tw`bg-white rounded-2xl p-4 mb-4 shadow gap-5`}>
+    <Text style={tw`text-lg font-bold mb-2`}>{issue.mainText}</Text>
+    <View style={tw`flex-row items-center mb-2 gap-10`}>
+      <View style={tw`flex flex-col`}>
+        <Text style={tw`text-xs text-gray-600 mr-4`}>BLOCK</Text>
+        <Text style={tw`text-base text-black mr-6 font-semibold text-2xl`}>
+          {issue.block}
+        </Text>
       </View>
-      <View style={styles.line}></View>
-      <View style={styles.userDateTimeContainer}>
-        <View style={styles.user}>
-          <UserIcon size={25} color="#555555" />
-          <Text style={styles.nameText}>{userName}</Text>
-        </View>
-        <View style={styles.dateTimeDetails}>
-          <Text style={styles.dateTimeSmallText}>{dateTime}</Text>
-        </View>
-        <View
-          style={{
-            borderRadius: 20,
-            backgroundColor: "#347aeb",
-          }}
-        >
-          <TouchableOpacity style={styles.detailButton} onPress={() => {}}>
-            <AntDesign name="right" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
+      <View style={tw`flex flex-col`}>
+        <Text style={tw`text-xs text-gray-600 mr-4`}>TYPE</Text>
+        <Text style={tw`text-base text-black mr-6 font-semibold text-2xl`}>
+          {issue.type}
+        </Text>
       </View>
     </View>
-  );
-};
-
+    <View style={tw`border border-gray-200 px-5`}></View>
+    <View style={tw`flex-row items-center mb-2`}>
+      <Ionicons name="person-circle" size={40} color="gray" />
+      <View style={tw`flex-1 ml-4`}>
+        <Text style={tw`text-base font-bold`}>{issue.userName}</Text>
+      </View>
+      <TouchableOpacity
+        style={tw`bg-blue-500 p-4  mx-[5%] rounded-full  ml-10  flex-row justify-center items-center gap-2`}
+        // onPress={() => router.push({pathname: "/Diagnosis", params: patient})}
+      >
+        <ArrowUpRightIcon size={20} color={"white"} />
+      </TouchableOpacity>
+    </View>
+  </View>
+);
 const styles = StyleSheet.create({
   user: {
     flexDirection: "row",

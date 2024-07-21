@@ -91,11 +91,13 @@ export default function Tab() {
           {cardsData.map((card: CardProps, index: number) => (
             <Card
               key={index}
-              mainText={card.mainText}
-              block={card.block}
-              type={card.type}
-              userName={card.userName}
-              dateTime={card.dateTime}
+              issue={{
+                mainText: card.mainText,
+                block: card.block,
+                type: card.type,
+                userName: card.userName,
+                dateTime: card.dateTime,
+              }}
             />
           ))}
         </SafeAreaView>

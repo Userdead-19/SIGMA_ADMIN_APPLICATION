@@ -183,11 +183,13 @@ const IssuePage = () => {
         data={filteredIssues}
         renderItem={({ item }) => (
           <Card
-            mainText={item.issue.issueContent}
-            block={item.issue.block}
-            type={item.issue.issueType}
-            userName={item.raised_by.name}
-            dateTime={`${item.date} ${item.time}`}
+            issue={{
+              mainText: item.issue.issueContent,
+              block: item.issue.block,
+              type: item.issue.issueType,
+              userName: item.raised_by.name,
+              dateTime: `${item.date} ${item.time}`,
+            }}
           />
         )}
         keyExtractor={(item) => item._id.$oid}
