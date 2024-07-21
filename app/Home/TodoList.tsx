@@ -14,56 +14,52 @@ import Card from "@/components/Card"; // Adjust the path as needed
 
 const { width } = Dimensions.get("window");
 
-interface CardProps {
-  mainText: string;
-  block: string;
-  type: string;
-  userName: string;
-  dateTime: string;
+interface Issue {
+  _id: { $oid: string };
+  issueNo: string;
+  time: string;
+  date: string;
+  raised_by: { name: string; personId: string };
+  issue: {
+    issueLastUpdateTime: string;
+    issueLastUpdateDate: string;
+    issueType: string;
+    issueCat: string;
+    issueContent: string;
+    block: string;
+    floor: string;
+    actionItem: string;
+  };
+  comments: { date: string; by: string; content: string }[];
+  status: string;
+  log: { date: string; action: string; by: string }[];
+  survey: {};
+  anonymity: string;
 }
-
-const cardsData: CardProps[] = [
+const cardsData: Issue[] = [
   {
-    mainText: "Restroom Complaint",
-    block: "J block",
-    type: "Ladies",
-    userName: "Shreya Suresh",
-    dateTime: "July 20, 10:00 AM",
-  },
-  {
-    mainText: "Restroom Complaint",
-    block: "K block",
-    type: "Gents",
-    userName: "Rahul Sharma",
-    dateTime: "July 21, 11:00 AM",
-  },
-  {
-    mainText: "Restroom Complaint",
-    block: "L block",
-    type: "Ladies",
-    userName: "Anita Roy",
-    dateTime: "July 22, 9:00 AM",
-  },
-  {
-    mainText: "Restroom Complaint",
-    block: "J block",
-    type: "Ladies",
-    userName: "Shreya Suresh",
-    dateTime: "July 20, 10:00 AM",
-  },
-  {
-    mainText: "Restroom Complaint",
-    block: "K block",
-    type: "Gents",
-    userName: "Rahul Sharma",
-    dateTime: "July 21, 11:00 AM",
-  },
-  {
-    mainText: "Restroom Complaint",
-    block: "L block",
-    type: "Ladies",
-    userName: "Anita Roy",
-    dateTime: "July 22, 9:00 AM",
+    _id: { $oid: "659f92cbac8daf1e87da88fb" },
+    issueNo: "LG0OU",
+    time: "3:45 PM",
+    date: "11/03/24",
+    raised_by: { name: "ABC", personId: "ABC.AMCS" },
+    issue: {
+      issueLastUpdateTime: "3:45 PM",
+      issueLastUpdateDate: "11/03/24",
+      issueType: "FEEDBACK",
+      issueCat: "CLEANING",
+      issueContent: "Good cleaning",
+      block: "O",
+      floor: "1",
+      actionItem: "504",
+    },
+    comments: [
+      { date: "11-03-24 3:45 PM", by: "ABC.AMCS", content: "Good cleaning" },
+    ],
+    status: "CLOSED",
+    log: [{ date: "11-03-24 3:45", action: "closed", by: "ABC.AMCS" }],
+    survey: {},
+    anonymity: "false",
   },
 ];
 
@@ -88,17 +84,8 @@ export default function Tab() {
             </TouchableOpacity>
             <Text style={styles.headingText}>To Do List</Text>
           </View>
-          {cardsData.map((card: CardProps, index: number) => (
-            <Card
-              key={index}
-              issue={{
-                mainText: card.mainText,
-                block: card.block,
-                type: card.type,
-                userName: card.userName,
-                dateTime: card.dateTime,
-              }}
-            />
+          {cardsData.map((card: Issue, index: number) => (
+            <Card key={index} issue={card} />
           ))}
         </SafeAreaView>
       </View>

@@ -14,28 +14,43 @@ import tw from "twrnc";
 import { router } from "expo-router";
 const { width } = Dimensions.get("window");
 
-interface CardProps {
-  mainText: string;
-  block: string;
-  type: string;
-  userName: string;
-  dateTime: string;
+interface Issue {
+  _id: { $oid: string };
+  issueNo: string;
+  time: string;
+  date: string;
+  raised_by: { name: string; personId: string };
+  issue: {
+    issueLastUpdateTime: string;
+    issueLastUpdateDate: string;
+    issueType: string;
+    issueCat: string;
+    issueContent: string;
+    block: string;
+    floor: string;
+    actionItem: string;
+  };
+  comments: { date: string; by: string; content: string }[];
+  status: string;
+  log: { date: string; action: string; by: string }[];
+  survey: {};
+  anonymity: string;
 }
 
-const Card = ({ issue }: { issue: CardProps }) => (
+const Card = ({ issue }: { issue: Issue }) => (
   <View style={tw`bg-white rounded-2xl p-4 mb-4 shadow gap-5`}>
-    <Text style={tw`text-lg font-bold mb-2`}>{issue.mainText}</Text>
+    <Text style={tw`text-lg font-bold mb-2`}>{issue.issue.issueContent}</Text>
     <View style={tw`flex-row items-center mb-2 gap-10`}>
       <View style={tw`flex flex-col`}>
         <Text style={tw`text-xs text-gray-600 mr-4`}>BLOCK</Text>
         <Text style={tw`text-base text-black mr-6 font-semibold text-2xl`}>
-          {issue.block}
+          {issue.issue.block}
         </Text>
       </View>
       <View style={tw`flex flex-col`}>
         <Text style={tw`text-xs text-gray-600 mr-4`}>TYPE</Text>
         <Text style={tw`text-base text-black mr-6 font-semibold text-2xl`}>
-          {issue.type}
+          {issue.issue.issueType}
         </Text>
       </View>
     </View>
@@ -43,7 +58,10 @@ const Card = ({ issue }: { issue: CardProps }) => (
     <View style={tw`flex-row items-center mb-2`}>
       <Ionicons name="person-circle" size={40} color="gray" />
       <View style={tw`flex-1 ml-4`}>
-        <Text style={tw`text-base font-bold`}>{issue.userName}</Text>
+        <Text style={tw`text-base font-bold`}>{issue.raised_by.name}</Text>
+        <Text style={tw`text-xs text-gray-600`}>
+          {issue.raised_by.personId}
+        </Text>
       </View>
       <TouchableOpacity
         style={tw`bg-blue-500 p-4  mx-[5%] rounded-full  ml-10  flex-row justify-center items-center gap-2`}

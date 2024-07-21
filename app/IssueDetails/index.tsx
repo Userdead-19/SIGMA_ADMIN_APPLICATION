@@ -14,6 +14,25 @@ import { useNavigation } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
+interface issue {
+  raised_by: { name: string; personId: string };
+  issue: {
+    issueLastUpdateTime: string;
+    issueLastUpdateDate: string;
+    issueType: string;
+    issueCat: string;
+    issueContent: string;
+    block: string;
+    floor: string;
+    actionItem: string;
+  };
+  comments: { date: string; by: string; content: string }[];
+  status: string;
+  log: { date: string; action: string; by: string }[];
+  survey: {};
+  anonymity: string;
+}
+
 export default function IssueDetails() {
   const navigation = useNavigation();
 
@@ -42,10 +61,14 @@ export default function IssueDetails() {
           <Text style={styles.headingText}>Issue Details</Text>
         </View>
         <View style={styles.detailsContainer}>
-          <Text style={styles.textLabel}>Raised By: {issue.userName}</Text>
-          <Text style={styles.textLabel}>Block: {issue.block}</Text>
-          <Text style={styles.textLabel}>Type: {issue.type}</Text>
-          <Text style={styles.textLabel}>Date and Time: {issue.dateTime}</Text>
+          <Text style={styles.textLabel}>
+            Raised By: {issue.raised_by.name}
+          </Text>
+          <Text style={styles.textLabel}>Block: {issue.issue.block}</Text>
+          <Text style={styles.textLabel}>Type: {issue.issue.issueType}</Text>
+          <Text style={styles.textLabel}>
+            {`Date and Time: ${issue.issue.issueLastUpdateDate}   ${issue.issue.issueLastUpdateTime}`}
+          </Text>
           {/* Add more details as needed */}
         </View>
       </View>

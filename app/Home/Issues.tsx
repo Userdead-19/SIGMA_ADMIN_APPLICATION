@@ -10,7 +10,30 @@ import {
 import Card from "@/components/Card";
 import { useNavigation } from "@react-navigation/native";
 
-const issuesData = [
+interface Issue {
+  _id: { $oid: string };
+  issueNo: string;
+  time: string;
+  date: string;
+  raised_by: { name: string; personId: string };
+  issue: {
+    issueLastUpdateTime: string;
+    issueLastUpdateDate: string;
+    issueType: string;
+    issueCat: string;
+    issueContent: string;
+    block: string;
+    floor: string;
+    actionItem: string;
+  };
+  comments: { date: string; by: string; content: string }[];
+  status: string;
+  log: { date: string; action: string; by: string }[];
+  survey: {};
+  anonymity: string;
+}
+
+const issuesData: Issue[] = [
   {
     _id: { $oid: "659f92cbac8daf1e87da88f8" },
     issueNo: "LG0OS",
@@ -181,17 +204,7 @@ const IssuePage = () => {
       </View>
       <FlatList
         data={filteredIssues}
-        renderItem={({ item }) => (
-          <Card
-            issue={{
-              mainText: item.issue.issueContent,
-              block: item.issue.block,
-              type: item.issue.issueType,
-              userName: item.raised_by.name,
-              dateTime: `${item.date} ${item.time}`,
-            }}
-          />
-        )}
+        renderItem={({ item }) => <Card issue={item} />}
         keyExtractor={(item) => item._id.$oid}
         contentContainerStyle={styles.listContainer}
       />
