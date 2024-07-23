@@ -6,6 +6,8 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+
+import { LogBox } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
@@ -51,7 +53,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-
+  LogBox.ignoreAllLogs();
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
