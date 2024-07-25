@@ -11,7 +11,7 @@ import { LogBox } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
-
+import { UserProvider } from "@/Hooks/UserContext";
 import { useColorScheme } from "@/components/useColorScheme";
 
 export {
@@ -55,8 +55,10 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   LogBox.ignoreAllLogs();
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    <UserProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+    </UserProvider>
   );
 }
