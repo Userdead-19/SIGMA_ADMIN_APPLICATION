@@ -6,6 +6,7 @@ import {
   View,
   Image,
   Dimensions,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -17,6 +18,9 @@ import {
   UsersIcon,
   RectangleStackIcon,
   BellAlertIcon,
+  UserIcon,
+  ChartBarIcon,
+  PowerIcon,
 } from "react-native-heroicons/outline";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
@@ -45,18 +49,14 @@ export default function TabLayout() {
             <View
               style={[
                 tw`bg-white rounded-full flex flex-row items-center`,
-                { height: height * 0.07, width: width * 0.74 },
+                {
+                  height: height * 0.07,
+                  width: width * 0.74,
+                  paddingHorizontal: width * 0.04,
+                },
               ]}
             >
-              <Image
-                source={{
-                  uri: "https://bleedingcool.com/wp-content/uploads/2019/09/benedict-cumberbatch-1200x900.jpg",
-                }}
-                style={[
-                  tw`border-1 rounded-full bg-black`,
-                  { height: height * 0.07, width: height * 0.07 },
-                ]}
-              />
+              <UserIcon size={29} color={"blue"} />
               <Text
                 style={[
                   tw`text-black ml-3 text-md`,
@@ -65,9 +65,6 @@ export default function TabLayout() {
               >
                 Henry Cavil
               </Text>
-              <TouchableOpacity style={tw`ml-3`}>
-                <ChevronDownIcon size={19} color={"blue"} />
-              </TouchableOpacity>
             </View>
             <View style={tw`flex flex-row gap-1`}>
               <TouchableOpacity
@@ -75,9 +72,23 @@ export default function TabLayout() {
                   tw`bg-white rounded-full justify-center items-center`,
                   { height: height * 0.07, width: height * 0.07 },
                 ]}
-                onPress={() => router.push("/Notifications")}
+                onPress={() => {
+                  Alert.alert("Logout", "Are you sure you want to logout?", [
+                    {
+                      text: "Cancel",
+                      onPress: () => {},
+                      style: "cancel",
+                    },
+                    {
+                      text: "Yes",
+                      onPress: () => {
+                        router.replace("/(tabs)");
+                      },
+                    },
+                  ]);
+                }}
               >
-                <BellAlertIcon size={29} color={"blue"} />
+                <PowerIcon size={29} color={"blue"} />
               </TouchableOpacity>
             </View>
           </View>
@@ -102,7 +113,7 @@ export default function TabLayout() {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={tw`px-1 mt-4 flex-row gap-5`}>
+          <View style={tw`px-3 mt-4 mb-1 flex-row gap-5`}>
             <View
               style={[
                 tw`bg-white p-4 rounded-lg items-center justify-center`,
@@ -162,7 +173,9 @@ export default function TabLayout() {
                   tw`bg-white rounded-[50px] ml-1`,
                   { width: "37%", height: height * 0.19 },
                 ]}
-                onPress={() => {}}
+                onPress={() => {
+                  router.push("/Home/AdminConsole");
+                }}
               >
                 <View style={tw`mt-4 ml-4`}>
                   <CubeTransparentIcon size={34} color={"blue"} />
@@ -254,7 +267,7 @@ export default function TabLayout() {
                   onPress={() => {}}
                 >
                   <View style={tw`mt-4 ml-4`}>
-                    <CubeTransparentIcon size={34} color={"blue"} />
+                    <ChartBarIcon size={34} color={"blue"} />
                   </View>
                   <Text
                     style={[
@@ -262,7 +275,7 @@ export default function TabLayout() {
                       { fontSize: width * 0.044 },
                     ]}
                   >
-                    Forum
+                    Statistics
                   </Text>
                 </TouchableOpacity>
               </View>
