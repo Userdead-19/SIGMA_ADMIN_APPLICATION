@@ -8,13 +8,12 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { useGlobalSearchParams, useRouter } from "expo-router";
+import { useGlobalSearchParams, useNavigation } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
-interface issue {
+interface Issue {
   raised_by: { name: string; personId: string };
   issue: {
     issueLastUpdateTime: string;
@@ -37,17 +36,18 @@ export default function IssueDetails() {
   const navigation = useNavigation();
 
   const params = useGlobalSearchParams();
-  const issue = params.issue
+  const issue: Issue = params.issue
     ? JSON.parse(Array.isArray(params.issue) ? params.issue[0] : params.issue)
     : null;
-  console.log(issue);
+
   React.useEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, [navigation]);
+
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
@@ -56,20 +56,24 @@ export default function IssueDetails() {
               navigation.goBack();
             }}
           >
-            <AntDesign name="left" size={15} color="#555555" />
+            <AntDesign name="left" size={20} color="#555555" />
           </TouchableOpacity>
           <Text style={styles.headingText}>Issue Details</Text>
         </View>
         <View style={styles.detailsContainer}>
-          <Text style={styles.textLabel}>
-            Raised By: {issue.raised_by.name}
-          </Text>
-          <Text style={styles.textLabel}>Block: {issue.issue.block}</Text>
-          <Text style={styles.textLabel}>Type: {issue.issue.issueType}</Text>
-          <Text style={styles.textLabel}>
-            {`Date and Time: ${issue.issue.issueLastUpdateDate}   ${issue.issue.issueLastUpdateTime}`}
-          </Text>
-          {/* Add more details as needed */}
+          <Text style={styles.category}>{issue.issue.issueCat}</Text>
+          <Text style={styles.title}>{issue.issue.issueContent}</Text>
+          <View style={styles.details}>
+            <Text style={styles.detailText}>
+              Raised By: {issue.raised_by.name}
+            </Text>
+            <Text style={styles.detailText}>Block: {issue.issue.block}</Text>
+            <Text style={styles.detailText}>Type: {issue.issue.issueType}</Text>
+            <Text style={styles.detailText}>
+              {`Date and Time: ${issue.issue.issueLastUpdateDate}   ${issue.issue.issueLastUpdateTime}`}
+            </Text>
+            {/* Add more details as needed */}
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -77,41 +81,71 @@ export default function IssueDetails() {
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    backgroundColor: "#FFFFFF",
+  },
   container: {
-    paddingTop: 40,
     flex: 1,
-    backgroundColor: "#F2F2F2",
+    paddingHorizontal: width * 0.05,
+    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: "4%",
+    marginVertical: 20,
+    position: "relative",
   },
   iconContainer: {
-    width: "8%",
-    height: "120%",
+    position: "absolute",
+    left: 0,
+    width: 40,
+    height: 40,
     borderRadius: 20,
     backgroundColor: "white",
     alignItems: "center",
     justifyContent: "center",
-    position: "absolute",
-    left: width * 0.05,
-    zIndex: 1,
-    top: "-10%",
+    elevation: 5,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
   },
   headingText: {
-    fontSize: 19,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#555555",
+    color: "#333333",
     textAlign: "center",
-    flex: 1,
   },
   detailsContainer: {
-    paddingHorizontal: width * 0.05,
+    borderWidth: 1,
+    borderColor: "#dddddd",
+    borderRadius: 10,
+    padding: 20,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
   },
-  textLabel: {
+  category: {
+    fontSize: 14,
+    color: "#999999",
+    marginBottom: 5,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#333333",
+    marginBottom: 20,
+  },
+  details: {
+    marginTop: 10,
+  },
+  detailText: {
     fontSize: 16,
-    marginVertical: 8,
+    color: "#555555",
+    marginBottom: 10,
   },
 });

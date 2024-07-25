@@ -4,6 +4,7 @@
 node_modules/
 
 # Expo
+.yarn/
 .expo/
 dist/
 web-build/
