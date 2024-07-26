@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   ScrollView,
   View,
@@ -10,62 +10,86 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { FAB, Provider as PaperProvider } from "react-native-paper";
+import {
+  FAB,
+  Provider as PaperProvider,
+  Searchbar,
+  Button,
+} from "react-native-paper";
 import UserCard from "@/components/UserCard";
+import axios from "axios";
+import tw from "twrnc";
 import { router } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
-const user = [
-  {
-    _id: "63bad9d81a86f91ef7fcce56",
-    name: "Sanjith T",
-    id: "20PW32",
-    hashword: "d63dc919e201d7bc4c825630d2cf25fdc93d4b2f0d46706d29038d01",
-    confirmed: true,
-    confkey: "7366B4EB",
-  },
-  {
-    _id: "63c0a1a1b4e3d3eecf1d3d23",
-    name: "John Doe",
-    id: "20PW01",
-    hashword: "d41d8cd98f00b204e9800998ecf8427e",
-    confirmed: true,
-    confkey: "12345ABC",
-  },
-  {
-    _id: "63c0a1b2b4e3d3eecf1d3d24",
-    name: "Jane Smith",
-    id: "20PW02",
-    hashword: "098f6bcd4621d373cade4e832627b4f6",
-    confirmed: true,
-    confkey: "67890DEF",
-  },
-  {
-    _id: "63c0a1c3b4e3d3eecf1d3d25",
-    name: "Alice Johnson",
-    id: "20PW03",
-    hashword: "5f4dcc3b5aa765d61d8327deb882cf99",
-    confirmed: false,
-    confkey: "11223AAA",
-  },
-  {
-    _id: "63c0a1c3b4e3d3eecf1d3d25",
-    name: "Alice Johnson",
-    id: "20PW03",
-    hashword: "5f4dcc3b5aa765d61d8327deb882cf99",
-    confirmed: false,
-    confkey: "11223AAA",
-  },
-];
+// Initial state
+const initialState = {
+  open: false,
+  user: [],
+  filteredUser: [],
+};
+
+// Reducer function
+const reducer = (state: any, action: any) => {
+  switch (action.type) {
+    case "SET_OPEN":
+      return { ...state, open: action.payload };
+    case "SET_USER":
+      return { ...state, user: action.payload, filteredUser: action.payload };
+    case "SET_FILTERED_USER":
+      return { ...state, filteredUser: action.payload };
+    default:
+      return state;
+  }
+};
 
 export default function Tab() {
   const navigation = useNavigation();
-  const [open, setOpen] = useState(false);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortAsc, setSortAsc] = useState(true);
 
-  navigation.setOptions({
-    headerShown: false,
-  });
+  const fetchAllUsers = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.gms.intellx.in/administrator/all-users"
+      );
+      dispatch({ type: "SET_USER", payload: response.data.users });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onChangeSearch = (query: any) => {
+    setSearchQuery(query);
+    const filteredUsers = state.user.filter((user: any) =>
+      user.name.toLowerCase().includes(query.toLowerCase())
+    );
+    dispatch({ type: "SET_FILTERED_USER", payload: filteredUsers });
+  };
+
+  const onSortUsers = () => {
+    const sortedUsers = [...state.filteredUser].sort((a, b) => {
+      if (sortAsc) {
+        return a.name.localeCompare(b.name);
+      } else {
+        return b.name.localeCompare(a.name);
+      }
+    });
+    dispatch({ type: "SET_FILTERED_USER", payload: sortedUsers });
+    setSortAsc(!sortAsc);
+  };
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
 
   return (
     <PaperProvider>
@@ -83,16 +107,38 @@ export default function Tab() {
               </TouchableOpacity>
               <Text style={styles.headingText}>User Details</Text>
             </View>
-            {user.map((u, i) => (
-              <UserCard key={i} user={u} />
+            <View style={styles.searchSortContainer}>
+              <Searchbar
+                placeholder="Search"
+                onChangeText={onChangeSearch}
+                value={searchQuery}
+                style={styles.searchBar}
+              />
+              <Button
+                mode="contained"
+                onPress={onSortUsers}
+                style={[styles.sortButton, tw`bg-blue-500`]}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                  }}
+                >
+                  Sort
+                </Text>
+              </Button>
+            </View>
+            {state.filteredUser.map((u: any, i: any) => (
+              <UserCard key={i} user={u} reloadFunction={fetchAllUsers} />
             ))}
           </SafeAreaView>
         </View>
       </ScrollView>
       <FAB
-        style={styles.fab}
-        icon={open ? "minus" : "plus"}
+        style={[styles.fab, tw`bg-blue-500`]}
+        icon={state.open ? "minus" : "plus"}
         onPress={() => {
+          dispatch({ type: "SET_OPEN", payload: !state.open });
           router.push({ pathname: "/Home/AddUser" });
         }}
       />
@@ -131,6 +177,20 @@ const styles = StyleSheet.create({
     color: "#555555",
     textAlign: "center",
     flex: 1,
+  },
+  searchSortContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  searchBar: {
+    flex: 1,
+    marginRight: 10,
+    backgroundColor: "white",
+  },
+  sortButton: {
+    height: 50,
+    justifyContent: "center",
   },
   fab: {
     position: "absolute",

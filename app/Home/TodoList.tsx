@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   ScrollView,
   View,
@@ -11,8 +11,37 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Card from "@/components/Card"; // Adjust the path as needed
+import axios from "axios";
+import {
+  Searchbar,
+  Button,
+  Provider as PaperProvider,
+} from "react-native-paper";
+import tw from "twrnc";
 
 const { width } = Dimensions.get("window");
+
+// Initial state
+const initialState = {
+  issueList: [],
+  filteredIssueList: [],
+};
+
+// Reducer function
+const reducer = (state: any, action: any) => {
+  switch (action.type) {
+    case "SET_ISSUE_LIST":
+      return {
+        ...state,
+        issueList: action.payload,
+        filteredIssueList: action.payload,
+      };
+    case "SET_FILTERED_ISSUE_LIST":
+      return { ...state, filteredIssueList: action.payload };
+    default:
+      return state;
+  }
+};
 
 interface Issue {
   _id: { $oid: string };
@@ -36,60 +65,87 @@ interface Issue {
   survey: {};
   anonymity: string;
 }
-const cardsData: Issue[] = [
-  {
-    _id: { $oid: "659f92cbac8daf1e87da88fb" },
-    issueNo: "LG0OU",
-    time: "3:45 PM",
-    date: "11/03/24",
-    raised_by: { name: "ABC", personId: "ABC.AMCS" },
-    issue: {
-      issueLastUpdateTime: "3:45 PM",
-      issueLastUpdateDate: "11/03/24",
-      issueType: "FEEDBACK",
-      issueCat: "CLEANING",
-      issueContent: "Good cleaning",
-      block: "O",
-      floor: "1",
-      actionItem: "504",
-    },
-    comments: [
-      { date: "11-03-24 3:45 PM", by: "ABC.AMCS", content: "Good cleaning" },
-    ],
-    status: "CLOSED",
-    log: [{ date: "11-03-24 3:45", action: "closed", by: "ABC.AMCS" }],
-    survey: {},
-    anonymity: "false",
-  },
-];
 
 export default function Tab() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortAsc, setSortAsc] = useState(true);
   const navigation = useNavigation();
-  navigation.setOptions({
-    headerShown: false,
-  });
+
+  const fetchIssues = async () => {
+    try {
+      const response = await axios.get("https://api.gms.intellx.in/tasks/todo");
+      dispatch({ type: "SET_ISSUE_LIST", payload: response.data.tasks });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onChangeSearch = (query: any) => {
+    setSearchQuery(query);
+    const filteredIssues = state.issueList.filter((issue: any) =>
+      issue.issue.issueContent.toLowerCase().includes(query.toLowerCase())
+    );
+    dispatch({ type: "SET_FILTERED_ISSUE_LIST", payload: filteredIssues });
+  };
+
+  const onSortIssues = () => {
+    const sortedIssues = [...state.filteredIssueList].sort((a, b) => {
+      if (sortAsc) {
+        return a.issue.issueContent.localeCompare(b.issue.issueContent);
+      } else {
+        return b.issue.issueContent.localeCompare(a.issue.issueContent);
+      }
+    });
+    dispatch({ type: "SET_FILTERED_ISSUE_LIST", payload: sortedIssues });
+    setSortAsc(!sortAsc);
+  };
+
+  useEffect(() => {
+    fetchIssues();
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, []);
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={styles.container}>
-        <SafeAreaView style={{ paddingHorizontal: width * 0.025 }}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={() => {
-                navigation.goBack();
-              }}
-            >
-              <AntDesign name="left" size={15} color="#555555" />
-            </TouchableOpacity>
-            <Text style={styles.headingText}>To Do List</Text>
-          </View>
-          {cardsData.map((card: Issue, index: number) => (
-            <Card key={index} issue={card} />
-          ))}
-        </SafeAreaView>
-      </View>
-    </ScrollView>
+    <PaperProvider>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          <SafeAreaView style={{ paddingHorizontal: width * 0.025 }}>
+            <View style={styles.header}>
+              <TouchableOpacity
+                style={styles.iconContainer}
+                onPress={() => {
+                  navigation.goBack();
+                }}
+              >
+                <AntDesign name="left" size={15} color="#555555" />
+              </TouchableOpacity>
+              <Text style={styles.headingText}>To Do List</Text>
+            </View>
+            <View style={styles.searchSortContainer}>
+              <Searchbar
+                placeholder="Search"
+                onChangeText={onChangeSearch}
+                value={searchQuery}
+                style={styles.searchBar}
+              />
+              <Button
+                mode="contained"
+                onPress={onSortIssues}
+                style={[styles.sortButton, tw`bg-blue-500`]}
+              >
+                <Text style={{ color: "white" }}>Sort</Text>
+              </Button>
+            </View>
+            {state.filteredIssueList.map((card: Issue, index: number) => (
+              <Card key={index} issue={card} />
+            ))}
+          </SafeAreaView>
+        </View>
+      </ScrollView>
+    </PaperProvider>
   );
 }
 
@@ -125,5 +181,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
     flex: 1,
   },
-  // Add remaining styles
+  searchSortContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  searchBar: {
+    flex: 1,
+    marginRight: 10,
+    backgroundColor: "white",
+  },
+  sortButton: {
+    height: 50,
+    justifyContent: "center",
+    backgroundColor: "#ff9f00",
+  },
 });

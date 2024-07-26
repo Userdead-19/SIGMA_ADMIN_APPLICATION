@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useEffect, useReducer } from "react";
 import {
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-  Image,
   Dimensions,
   Alert,
 } from "react-native";
@@ -12,27 +11,101 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {
   ArrowUpRightIcon,
   CalendarIcon,
-  ChevronDownIcon,
   ChevronRightIcon,
   CubeTransparentIcon,
   UsersIcon,
   RectangleStackIcon,
-  BellAlertIcon,
-  UserIcon,
-  ChartBarIcon,
   PowerIcon,
+  ChartBarIcon,
+  UserIcon,
 } from "react-native-heroicons/outline";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import tw from "twrnc";
+import { useUser } from "@/Hooks/UserContext";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 
+// Initial state
+const initialState = {
+  issuesResolved: 0,
+  TodoList: 0,
+  totalIssues: 0,
+};
+
+// Reducer function
+const reducer = (state: any, action: any) => {
+  switch (action.type) {
+    case "SET_ISSUES_RESOLVED":
+      return { ...state, issuesResolved: action.payload };
+    case "SET_TODO_LIST":
+      return { ...state, TodoList: action.payload };
+    case "SET_TOTAL_ISSUES":
+      return { ...state, totalIssues: action.payload };
+    default:
+      return state;
+  }
+};
+
 export default function TabLayout() {
+  const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useNavigation();
-  navigation.setOptions({
-    headerShown: false,
-  });
+
+  const fetchCountSolvedISsues = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.gms.intellx.in/client/issues/total/closed"
+      );
+      dispatch({
+        type: "SET_ISSUES_RESOLVED",
+        payload: response.data.closed_issues,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchTodoList = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.gms.intellx.in/client/issues/total/open"
+      );
+      dispatch({ type: "SET_TODO_LIST", payload: response.data.open_issues });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchTotalIssues = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.gms.intellx.in/client/issues/total"
+      );
+      dispatch({
+        type: "SET_TOTAL_ISSUES",
+        payload: response.data.total_issues,
+      });
+      console.log(state);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCountSolvedISsues();
+    fetchTodoList();
+    fetchTotalIssues();
+  }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
+
+  const user = useUser();
 
   return (
     <View
@@ -63,7 +136,7 @@ export default function TabLayout() {
                   { fontSize: width * 0.044 },
                 ]}
               >
-                Henry Cavil
+                {user?.name}
               </Text>
             </View>
             <View style={tw`flex flex-row gap-1`}>
@@ -82,6 +155,7 @@ export default function TabLayout() {
                     {
                       text: "Yes",
                       onPress: () => {
+                        AsyncStorage.removeItem("token");
                         router.replace("/(tabs)");
                       },
                     },
@@ -106,7 +180,7 @@ export default function TabLayout() {
             </Text>
             <View style={tw`flex flex-row space-x-1 items-center ml-4 mr-4`}>
               <Text style={[tw`text-lg`, { fontSize: width * 0.044 }]}>
-                #21
+                #{user?.id}
               </Text>
               <TouchableOpacity>
                 <ChevronRightIcon size={19} />
@@ -126,7 +200,7 @@ export default function TabLayout() {
               <Text
                 style={[tw`text-xl font-bold mt-2`, { fontSize: width * 0.06 }]}
               >
-                23
+                {state.totalIssues}
               </Text>
             </View>
             <View
@@ -141,7 +215,7 @@ export default function TabLayout() {
               <Text
                 style={[tw`text-xl font-bold mt-2`, { fontSize: width * 0.06 }]}
               >
-                15
+                {state.issuesResolved}
               </Text>
             </View>
           </View>
@@ -219,7 +293,7 @@ export default function TabLayout() {
                   <View
                     style={tw`h-7 w-7 bg-red-500 rounded-full flex justify-center items-center`}
                   >
-                    <Text style={tw`text-white`}>7</Text>
+                    <Text style={tw`text-white`}>{state.TodoList}</Text>
                   </View>
                 </View>
                 <View style={tw`px-4 mt-4`}>

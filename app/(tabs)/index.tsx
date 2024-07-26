@@ -1,30 +1,40 @@
-
-import React, { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
-import { Image } from 'react-native';
-
-type RootStackParamList = {
-  Login: undefined;
-  SignUp: undefined;
-};
+import { Image } from "react-native";
+import { useUser } from "@/Hooks/UserContext"; // Adjust the import path as needed
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type State = {
   email: string;
   password: string;
+  loading: boolean;
+  error: string | null;
 };
 
 type Action =
   | { type: "SET_EMAIL"; payload: string }
-  | { type: "SET_PASSWORD"; payload: string };
+  | { type: "SET_PASSWORD"; payload: string }
+  | { type: "LOGIN_REQUEST" }
+  | { type: "LOGIN_SUCCESS"; payload: { name: string; id: string } }
+  | { type: "LOGIN_FAILURE"; payload: string };
+
+const initialState: State = {
+  email: "",
+  password: "",
+  loading: false,
+  error: null,
+};
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -32,33 +42,67 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, email: action.payload };
     case "SET_PASSWORD":
       return { ...state, password: action.payload };
+    case "LOGIN_REQUEST":
+      return { ...state, loading: true, error: null };
+    case "LOGIN_SUCCESS":
+      return { ...state, loading: false, email: "", password: "" };
+    case "LOGIN_FAILURE":
+      return { ...state, loading: false, error: action.payload };
     default:
       return state;
   }
 };
 
 const LoginScreen = () => {
-  const [state, dispatch] = useReducer(reducer, { email: "", password: "" });
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [isEmailFocused, setEmailFocused] = useState(false);
   const [isPasswordFocused, setPasswordFocused] = useState(false);
   const [secureText, setSecureText] = useState(true);
   const navigation = useNavigation();
-  
-  React.useEffect(() => {
+  const { updateUser } = useUser();
+
+  useEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, [navigation]);
 
+  const handleLogin = async () => {
+    dispatch({ type: "LOGIN_REQUEST" });
+
+    try {
+      // Simulate API call
+      let response = await axios.post(
+        "https://api.gms.intellx.in/manager/login",
+        {
+          id: state.email,
+          password: state.password,
+        }
+      );
+      console.log(response.data);
+      AsyncStorage.setItem("token", response.data.token);
+      dispatch({ type: "LOGIN_SUCCESS", payload: response.data });
+      updateUser({
+        name: response.data.user.name,
+        id: response.data.user.id,
+        confirmed: true,
+      });
+      router.replace("/Home");
+    } catch (error) {
+      dispatch({
+        type: "LOGIN_FAILURE",
+        payload: "Login failed. Please try again.",
+      });
+    }
+  };
+
   return (
-    
     <View style={styles.container}>
       <Image
-  source={require('../../assets/images/sigmalogo.png')} 
-  style={styles.logo}
-/>
+        source={require("../../assets/images/sigmalogo.png")}
+        style={styles.logo}
+      />
 
-      
       <View style={{ padding: 20 }}>
         <Text style={styles.title}>Login</Text>
         <Text style={styles.subtitle}>Please sign in to continue.</Text>
@@ -101,11 +145,7 @@ const LoginScreen = () => {
             dispatch({ type: "SET_PASSWORD", payload: text })
           }
         />
-        <TouchableOpacity
-          onPress={() => {
-            setSecureText(!secureText);
-          }}
-        >
+        <TouchableOpacity onPress={() => setSecureText(!secureText)}>
           <MaterialCommunityIcons
             name={secureText ? "eye" : "eye-off"}
             size={20}
@@ -113,20 +153,17 @@ const LoginScreen = () => {
           />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          router.replace("/Home");
-        }}
-      >
-        <Text style={styles.buttonText}>LOGIN</Text>
-      </TouchableOpacity>
+      {state.loading ? (
+        <ActivityIndicator size="large" color="#8283e9" />
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>LOGIN</Text>
+        </TouchableOpacity>
+      )}
+      {state.error && <Text style={styles.errorText}>{state.error}</Text>}
       <TouchableOpacity
         onPress={() => router.push("/(tabs)/Signup")}
-        style={{
-          position: "absolute",
-          bottom: "4%",
-        }}
+        style={{ position: "absolute", bottom: "4%" }}
       >
         <Text style={styles.signUpText}>
           Don't have an account? <Text style={styles.signUpLink}>Sign up</Text>
@@ -148,10 +185,9 @@ const styles = StyleSheet.create({
   logo: {
     width: 300, // Adjust the width as needed
     height: 300, // Adjust the height as needed
-    marginBottom:"-20%",
-    marginTop:'-50%' // Add some margin if needed
+    marginBottom: "-20%",
+    marginTop: "-50%", // Add some margin if needed
   },
-  
   title: {
     fontSize: 32,
     fontWeight: "800",
@@ -215,7 +251,10 @@ const styles = StyleSheet.create({
   signUpLink: {
     color: "#8283e9",
   },
+  errorText: {
+    color: "red",
+    marginTop: 10,
+  },
 });
-
 
 export default LoginScreen;

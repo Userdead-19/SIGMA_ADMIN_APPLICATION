@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import Card from "@/components/Card";
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 
 interface Issue {
   _id: { $oid: string };
@@ -136,6 +137,8 @@ const issuesData: Issue[] = [
 
 const IssuePage = () => {
   const [currentStage, setCurrentStage] = useState("Current");
+  const [issues, setIssues] = useState<Issue[]>([]);
+
   const slideAnim = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
   navigation.setOptions({
@@ -149,6 +152,17 @@ const IssuePage = () => {
       alignItems: "center",
     },
   });
+  const fetchAllIssues = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.gms.intellx.in/tasks/resolved"
+      );
+      setIssues(response.data.issues);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleButtonPress = (stage: any) => {
     setCurrentStage(stage);
     Animated.timing(slideAnim, {
@@ -162,6 +176,10 @@ const IssuePage = () => {
     inputRange: [0, 1],
     outputRange: ["0%", "50%"],
   });
+
+  useEffect(() => {
+    fetchAllIssues();
+  }, []);
 
   const filteredIssues = issuesData.filter((issue) =>
     currentStage === "Current"
@@ -203,7 +221,7 @@ const IssuePage = () => {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={filteredIssues}
+        data={issues}
         renderItem={({ item }) => <Card issue={item} />}
         keyExtractor={(item) => item._id.$oid}
         contentContainerStyle={styles.listContainer}

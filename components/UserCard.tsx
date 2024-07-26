@@ -6,19 +6,13 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
+  Alert,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { UserCircleIcon, UserIcon } from "react-native-heroicons/outline";
+import { UserCircleIcon } from "react-native-heroicons/outline";
+import axios from "axios";
 
 const { width } = Dimensions.get("window");
-const user = {
-  _id: "63bad9d81a86f91ef7fcce56",
-  name: "Sanjith T",
-  id: "20PW32",
-  hashword: "d63dc919e201d7bc4c825630d2cf25fdc93d4b2f0d46706d29038d01",
-  confirmed: true,
-  confkey: "7366B4EB",
-};
 
 interface User {
   name: string;
@@ -29,7 +23,13 @@ interface User {
   confkey: string;
 }
 
-const UserCard = ({ user }: { user: User }) => {
+const UserCard = ({
+  user,
+  reloadFunction,
+}: {
+  user: User;
+  reloadFunction: Function;
+}) => {
   const [expanded, setExpanded] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
 
@@ -47,20 +47,29 @@ const UserCard = ({ user }: { user: User }) => {
     outputRange: [0, 100], // Adjust as needed for content height
   });
 
+  const deleteCurrentUser = async (id: string) => {
+    try {
+      const body = {
+        id: id,
+      };
+      const response = await axios.delete(
+        "https://api.gms.intellx.in/client/delete",
+        { data: body }
+      );
+      console.log(response.data);
+      reloadFunction();
+      Alert.alert("User Deleted Successfully");
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error Deleting User");
+    }
+  };
+
   return (
     <View style={styles.card}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-evenly",
-        }}
-      >
+      <View style={styles.row}>
         <UserCircleIcon size={60} color="blue" />
-        <View
-          style={{
-            flexDirection: "column",
-          }}
-        >
+        <View style={styles.textContainer}>
           <Text style={styles.userDetail}>Name: {user.name}</Text>
           <Text style={styles.userDetail}>ID: {user.id}</Text>
         </View>
@@ -80,7 +89,9 @@ const UserCard = ({ user }: { user: User }) => {
         </Text>
         <TouchableOpacity
           style={styles.deleteButton}
-          onPress={() => alert("Delete User")}
+          onPress={() => {
+            deleteCurrentUser(user.id);
+          }}
         >
           <Text style={styles.deleteButtonText}>Delete</Text>
         </TouchableOpacity>
@@ -104,16 +115,20 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  mainText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 10,
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+  },
+  textContainer: {
+    flexDirection: "column",
+    flex: 1,
+    flexShrink: 1,
   },
   userDetail: {
     fontSize: 16,
     color: "#555",
     marginBottom: 5,
+    flexShrink: 1,
   },
   arrowButton: {
     alignItems: "center",

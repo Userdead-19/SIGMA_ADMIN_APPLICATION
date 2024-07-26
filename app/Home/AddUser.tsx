@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import {
   View,
   Text,
@@ -51,9 +51,13 @@ const SignUpScreen = () => {
     confirmPassword: "",
   });
   const navigation = useNavigation();
-  navigation.setOptions({
-    headerTitle: "",
-  });
+
+  const CreateNewUser = async () => {};
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: "",
+    });
+  }, []);
   return (
     <View style={styles.container}>
       <View

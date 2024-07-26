@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   View,
@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { FAB, Provider as PaperProvider } from "react-native-paper";
 import ApprovalCard from "@/components/ApprovalCard";
 import { router } from "expo-router";
+import axios from "axios";
 
 const { width } = Dimensions.get("window");
 
@@ -63,9 +64,11 @@ export default function Tab() {
   const navigation = useNavigation();
   const [open, setOpen] = useState(false);
 
-  navigation.setOptions({
-    headerShown: false,
-  });
+  useEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, []);
 
   return (
     <PaperProvider>
