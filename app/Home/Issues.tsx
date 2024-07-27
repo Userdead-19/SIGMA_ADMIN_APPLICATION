@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useReducer, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -34,137 +34,84 @@ interface Issue {
   anonymity: string;
 }
 
-const issuesData: Issue[] = [
-  {
-    _id: { $oid: "659f92cbac8daf1e87da88f8" },
-    issueNo: "LG0OS",
-    time: "12:33 PM",
-    date: "11/01/24",
-    raised_by: { name: "MKB", personId: "MKB.AMCS" },
-    issue: {
-      issueLastUpdateTime: "12:33 PM",
-      issueLastUpdateDate: "11/01/24",
-      issueType: "FEEDBACK",
-      issueCat: "PLUMBING",
-      issueContent: "good",
-      block: "M",
-      floor: "3",
-      actionItem: "502",
-    },
-    comments: [{ date: "11-01-24 12:33 PM", by: "MKB.AMCS", content: "good" }],
-    status: "OPEN",
-    log: [{ date: "11-01-24 12:33", action: "opened", by: "MKB.AMCS" }],
-    survey: {},
-    anonymity: "false",
-  },
-  {
-    _id: { $oid: "659f92cbac8daf1e87da88fa" },
-    issueNo: "LG0OT",
-    time: "1:00 PM",
-    date: "11/02/24",
-    raised_by: { name: "XYZ", personId: "XYZ.AMCS" },
-    issue: {
-      issueLastUpdateTime: "1:00 PM",
-      issueLastUpdateDate: "11/02/24",
-      issueType: "COMPLAINT",
-      issueCat: "ELECTRICAL",
-      issueContent: "Light not working",
-      block: "N",
-      floor: "2",
-      actionItem: "503",
-    },
-    comments: [
-      {
-        date: "11-02-24 1:00 PM",
-        by: "XYZ.AMCS",
-        content: "Light not working",
-      },
-    ],
-    status: "OPEN",
-    log: [{ date: "11-02-24 1:00", action: "opened", by: "XYZ.AMCS" }],
-    survey: {},
-    anonymity: "true",
-  },
-  {
-    _id: { $oid: "659f92cbac8daf1e87da88fb" },
-    issueNo: "LG0OU",
-    time: "3:45 PM",
-    date: "11/03/24",
-    raised_by: { name: "ABC", personId: "ABC.AMCS" },
-    issue: {
-      issueLastUpdateTime: "3:45 PM",
-      issueLastUpdateDate: "11/03/24",
-      issueType: "FEEDBACK",
-      issueCat: "CLEANING",
-      issueContent: "Good cleaning",
-      block: "O",
-      floor: "1",
-      actionItem: "504",
-    },
-    comments: [
-      { date: "11-03-24 3:45 PM", by: "ABC.AMCS", content: "Good cleaning" },
-    ],
-    status: "CLOSED",
-    log: [{ date: "11-03-24 3:45", action: "closed", by: "ABC.AMCS" }],
-    survey: {},
-    anonymity: "false",
-  },
-  {
-    _id: { $oid: "659f92cbac8daf1e87da88fc" },
-    issueNo: "LG0OV",
-    time: "4:20 PM",
-    date: "11/04/24",
-    raised_by: { name: "LMN", personId: "LMN.AMCS" },
-    issue: {
-      issueLastUpdateTime: "4:20 PM",
-      issueLastUpdateDate: "11/04/24",
-      issueType: "COMPLAINT",
-      issueCat: "WATER",
-      issueContent: "Water leakage",
-      block: "P",
-      floor: "4",
-      actionItem: "505",
-    },
-    comments: [
-      { date: "11-04-24 4:20 PM", by: "LMN.AMCS", content: "Water leakage" },
-    ],
-    status: "CLOSED",
-    log: [{ date: "11-04-24 4:20", action: "closed", by: "LMN.AMCS" }],
-    survey: {},
-    anonymity: "true",
-  },
-];
+// Define action types
+const SET_ISSUES = "SET_ISSUES";
+const SET_FILTERED_ISSUES = "SET_FILTERED_ISSUES";
+const SET_CURRENT_STAGE = "SET_CURRENT_STAGE";
+
+// Define initial state
+const initialState = {
+  currentStage: "Current",
+  issues: [] as Issue[],
+  filteredIssues: [] as Issue[],
+};
+
+// Define reducer function
+const reducer = (state: typeof initialState, action: any) => {
+  switch (action.type) {
+    case SET_ISSUES:
+      return {
+        ...state,
+        issues: action.payload,
+        filteredIssues: filterIssues(action.payload, state.currentStage),
+      };
+    case SET_FILTERED_ISSUES:
+      return {
+        ...state,
+        filteredIssues: action.payload,
+      };
+    case SET_CURRENT_STAGE:
+      return {
+        ...state,
+        currentStage: action.payload,
+        filteredIssues: filterIssues(state.issues, action.payload),
+      };
+    default:
+      return state;
+  }
+};
+
+// Filter issues based on stage
+const filterIssues = (issues: Issue[], stage: string) => {
+  return issues.filter((issue) =>
+    stage === "Current" ? issue.status === "OPEN" : issue.status === "CLOSE"
+  );
+};
 
 const IssuePage = () => {
-  const [currentStage, setCurrentStage] = useState("Current");
-  const [issues, setIssues] = useState<Issue[]>([]);
-
+  const [state, dispatch] = useReducer(reducer, initialState);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
-  navigation.setOptions({
-    headerTitle: "Issues",
-    headerTitleStyle: {
-      fontSize: 24,
-      fontWeight: "bold",
-      color: "#333",
-    },
-    headerStyle: {
-      alignItems: "center",
-    },
-  });
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: "Issues",
+      headerTitleStyle: {
+        fontSize: 24,
+        fontWeight: "bold",
+        color: "#333",
+      },
+      headerStyle: {
+        alignItems: "center",
+      },
+    });
+  }, [navigation]);
+
   const fetchAllIssues = async () => {
     try {
-      const response = await axios.get(
-        "https://api.gms.intellx.in/tasks/resolved"
-      );
-      setIssues(response.data.issues);
+      const response = await axios.get("https://api.gms.intellx.in/tasks");
+      dispatch({ type: SET_ISSUES, payload: response.data.issues });
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching issues:", error);
     }
   };
 
-  const handleButtonPress = (stage: any) => {
-    setCurrentStage(stage);
+  useEffect(() => {
+    fetchAllIssues();
+  }, []);
+
+  const handleButtonPress = (stage: string) => {
+    dispatch({ type: SET_CURRENT_STAGE, payload: stage });
     Animated.timing(slideAnim, {
       toValue: stage === "Current" ? 0 : 1,
       duration: 300,
@@ -177,15 +124,12 @@ const IssuePage = () => {
     outputRange: ["0%", "50%"],
   });
 
+  // Debug logs
   useEffect(() => {
-    fetchAllIssues();
-  }, []);
-
-  const filteredIssues = issuesData.filter((issue) =>
-    currentStage === "Current"
-      ? issue.status === "OPEN"
-      : issue.status === "CLOSED"
-  );
+    console.log("Current stage:", state.currentStage);
+    console.log("Issues:", state.issues);
+    console.log("Filtered issues:", state.filteredIssues);
+  }, [state.currentStage, state.issues, state.filteredIssues]);
 
   return (
     <View style={styles.container}>
@@ -200,7 +144,7 @@ const IssuePage = () => {
           <Text
             style={[
               styles.buttonText,
-              currentStage === "Current" && styles.selectedText,
+              state.currentStage === "Current" && styles.selectedText,
             ]}
           >
             Current
@@ -213,7 +157,7 @@ const IssuePage = () => {
           <Text
             style={[
               styles.buttonText,
-              currentStage === "Resolved" && styles.selectedText,
+              state.currentStage === "Resolved" && styles.selectedText,
             ]}
           >
             Resolved
@@ -221,9 +165,9 @@ const IssuePage = () => {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={issues}
+        data={state.filteredIssues}
         renderItem={({ item }) => <Card issue={item} />}
-        keyExtractor={(item) => item._id.$oid}
+        keyExtractor={(item) => item.issueNo}
         contentContainerStyle={styles.listContainer}
       />
     </View>
