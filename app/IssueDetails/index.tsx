@@ -8,9 +8,12 @@ import {
   TouchableOpacity,
   Dimensions,
   TextInput,
+  Alert,
 } from "react-native";
 import { useGlobalSearchParams, useNavigation } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
+import axios from "axios";
+import { UserProvider, useUser } from "@/Hooks/UserContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -39,7 +42,7 @@ interface Issue {
 
 export default function IssueDetails() {
   const navigation = useNavigation();
-
+  const user = useUser();
   const params = useGlobalSearchParams();
   const issue: Issue = params.issue
     ? JSON.parse(Array.isArray(params.issue) ? params.issue[0] : params.issue)
@@ -48,15 +51,37 @@ export default function IssueDetails() {
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState(issue.comments);
 
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      const newCommentObj = {
-        date: new Date().toLocaleString(),
-        by: "CurrentUser", // replace with actual current user ID
-        content: newComment,
-      };
-      setComments([...comments, newCommentObj]);
-      setNewComment("");
+  const handleAddComment = async () => {
+    try {
+      if (newComment.trim()) {
+        const newCommentObj = {
+          date: new Date().toLocaleString(),
+          by: user.id, // replace with actual current user ID
+          content: newComment,
+        };
+        setComments([...comments, newCommentObj]);
+        const body = {
+          user_id: user.id,
+          content: newComment,
+        };
+        const response = await axios.post(
+          `https://api.gms.intellx.in/task/add-comment/${issue.issueNo}`,
+          body
+        );
+        if (response.status === 200) {
+          Alert.alert("Comment added successfully");
+        }
+        setNewComment("");
+      }
+    } catch (error) {
+      // Check if error is an Axios error
+      if (axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.response?.data || error.message);
+        Alert.alert("Failed to add comment", `Error: ${error.message}`);
+      } else {
+        console.error("Unexpected Error:", error);
+        Alert.alert("Failed to add comment", "An unexpected error occurred.");
+      }
     }
   };
 
@@ -65,6 +90,55 @@ export default function IssueDetails() {
       headerShown: false,
     });
   }, [navigation]);
+
+  const reopenIssue = async () => {
+    try {
+      const body = {
+        user_id: user.id,
+      };
+      const response = await axios.post(
+        `https://api.gms.intellx.in/task/open/${issue.issueNo}`,
+        body
+      );
+      if (response.status === 200) {
+        Alert.alert("Issue has been reopened successfully");
+        navigation.goBack();
+      }
+    } catch (error) {
+      // Check if error is an Axios error
+      if (axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.response?.data || error.message);
+        Alert.alert("Failed to reopen issue", `Error: ${error.message}`);
+      } else {
+        console.error("Unexpected Error:", error);
+        Alert.alert("Failed to reopen issue", "An unexpected error occurred.");
+      }
+    }
+  };
+  const CloseISsue = async () => {
+    try {
+      const body = {
+        user_id: user.id,
+      };
+      const response = await axios.post(
+        `https://api.gms.intellx.in/task/close/${issue.issueNo}`,
+        body
+      );
+      if (response.status === 200) {
+        Alert.alert("Issue has been closed successfully");
+        navigation.goBack();
+      }
+    } catch (error) {
+      // Check if error is an Axios error
+      if (axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.response?.data || error.message);
+        Alert.alert("Failed to close issue", `Error: ${error.message}`);
+      } else {
+        console.error("Unexpected Error:", error);
+        Alert.alert("Failed to close issue", "An unexpected error occurred.");
+      }
+    }
+  };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
@@ -108,9 +182,25 @@ export default function IssueDetails() {
               {issue.issue.issueLastUpdateTime}
             </Text>
           </View>
-          <TouchableOpacity style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>CLOSE THIS ISSUE</Text>
-          </TouchableOpacity>
+          {issue.status === "OPEN" ? (
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                CloseISsue();
+              }}
+            >
+              <Text style={styles.closeButtonText}>CLOSE THIS ISSUE</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                reopenIssue();
+              }}
+            >
+              <Text style={styles.closeButtonText}>REOPEN THIS ISSUE</Text>
+            </TouchableOpacity>
+          )}
           <Text style={styles.commentsHeading}>COMMENTS</Text>
           {comments.map((comment, index) => (
             <View key={index} style={styles.commentBox}>

@@ -166,7 +166,9 @@ const IssuePage = () => {
       </View>
       <FlatList
         data={state.filteredIssues}
-        renderItem={({ item }) => <Card issue={item} />}
+        renderItem={({ item }) => (
+          <Card issue={item} fetchAllIssues={fetchAllIssues} />
+        )}
         keyExtractor={(item) => item.issueNo}
         contentContainerStyle={styles.listContainer}
       />

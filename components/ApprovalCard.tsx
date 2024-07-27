@@ -6,19 +6,13 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
+  Alert,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { UserCircleIcon } from "react-native-heroicons/outline";
+import axios from "axios";
 
 const { width } = Dimensions.get("window");
-const user = {
-  _id: "63bad9d81a86f91ef7fcce56",
-  name: "Sanjith T",
-  id: "20PW32",
-  hashword: "d63dc919e201d7bc4c825630d2cf25fdc93d4b2f0d46706d29038d01",
-  confirmed: true,
-  confkey: "7366B4EB",
-};
 
 interface User {
   name: string;
@@ -29,7 +23,14 @@ interface User {
   confkey: string;
 }
 
-const ApprovalCard = ({ user }: { user: User }) => {
+const ApprovalCard = ({
+  user,
+  resetFunction,
+}: {
+  user: User;
+  resetFunction: () => void;
+}) => {
+  console.log(user);
   const [expanded, setExpanded] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
 
@@ -40,6 +41,50 @@ const ApprovalCard = ({ user }: { user: User }) => {
       useNativeDriver: false,
     }).start();
     setExpanded(!expanded);
+  };
+
+  const ApproveUser = async () => {
+    try {
+      const response = await axios.get(
+        `https://api.gms.intellx.in/manager/approve/${user.confkey}`
+      );
+      resetFunction();
+      Alert.alert("User Approved");
+    } catch (error: any) {
+      // Check if the error has a response object
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Unknown error occurred";
+      Alert.alert("Error approving user", errorMessage);
+      console.error(
+        "Error approving user:",
+        errorMessage,
+        error.response || error
+      );
+    }
+  };
+
+  const RejectUser = async () => {
+    try {
+      const response = await axios.delete(
+        `https://api.gms.intellx.in/manager/reject/${user.id}`
+      );
+      resetFunction();
+      Alert.alert("User Rejected");
+    } catch (error: any) {
+      // Check if the error has a response object
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Unknown error occurred";
+      Alert.alert("Error rejecting user", errorMessage);
+      console.error(
+        "Error rejecting user:",
+        errorMessage,
+        error.response || error
+      );
+    }
   };
 
   const heightInterpolate = animation.interpolate({
@@ -72,16 +117,10 @@ const ApprovalCard = ({ user }: { user: User }) => {
 
       <Animated.View style={{ overflow: "hidden", height: heightInterpolate }}>
         <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={styles.approveButton}
-            onPress={() => alert("User Approved")}
-          >
+          <TouchableOpacity style={styles.approveButton} onPress={ApproveUser}>
             <Text style={styles.buttonText}>Approve</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.rejectButton}
-            onPress={() => alert("User Rejected")}
-          >
+          <TouchableOpacity style={styles.rejectButton} onPress={RejectUser}>
             <Text style={styles.buttonText}>Reject</Text>
           </TouchableOpacity>
         </View>

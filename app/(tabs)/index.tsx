@@ -14,6 +14,7 @@ import { Image } from "react-native";
 import { useUser } from "@/Hooks/UserContext"; // Adjust the import path as needed
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as jwt from "jwt-decode";
 
 type State = {
   email: string;
@@ -61,7 +62,33 @@ const LoginScreen = () => {
   const navigation = useNavigation();
   const { updateUser } = useUser();
 
+  const checkForToken = async () => {
+    try {
+      let token = await AsyncStorage.getItem("token");
+      const decode = token ? jwt.jwtDecode(token) : null;
+      console.log(decode);
+      const body = {
+        id: decode?.sub,
+      };
+      const response = await axios.post(
+        `https://api.gms.intellx.in/manager/account`,
+        body
+      );
+      updateUser({
+        name: response.data.user.name,
+        id: response.data.user.id,
+        confirmed: true,
+      });
+      if (token) {
+        router.replace("/Home");
+      }
+    } catch (error) {
+      console.log("No token found");
+    }
+  };
+
   useEffect(() => {
+    checkForToken();
     navigation.setOptions({
       headerShown: false,
     });
@@ -80,7 +107,9 @@ const LoginScreen = () => {
         }
       );
       console.log(response.data);
-      AsyncStorage.setItem("token", response.data.token);
+      await AsyncStorage.setItem("token", response.data.token);
+      const token = await AsyncStorage.getItem("token");
+      console.log(token);
       dispatch({ type: "LOGIN_SUCCESS", payload: response.data });
       updateUser({
         name: response.data.user.name,

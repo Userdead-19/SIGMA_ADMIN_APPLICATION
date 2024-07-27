@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
@@ -17,57 +18,27 @@ import axios from "axios";
 
 const { width } = Dimensions.get("window");
 
-const user = [
-  {
-    _id: "63bad9d81a86f91ef7fcce56",
-    name: "Sanjith T",
-    id: "20PW32",
-    hashword: "d63dc919e201d7bc4c825630d2cf25fdc93d4b2f0d46706d29038d01",
-    confirmed: true,
-    confkey: "7366B4EB",
-  },
-  {
-    _id: "63c0a1a1b4e3d3eecf1d3d23",
-    name: "John Doe",
-    id: "20PW01",
-    hashword: "d41d8cd98f00b204e9800998ecf8427e",
-    confirmed: true,
-    confkey: "12345ABC",
-  },
-  {
-    _id: "63c0a1b2b4e3d3eecf1d3d24",
-    name: "Jane Smith",
-    id: "20PW02",
-    hashword: "098f6bcd4621d373cade4e832627b4f6",
-    confirmed: true,
-    confkey: "67890DEF",
-  },
-  {
-    _id: "63c0a1c3b4e3d3eecf1d3d25",
-    name: "Alice Johnson",
-    id: "20PW03",
-    hashword: "5f4dcc3b5aa765d61d8327deb882cf99",
-    confirmed: false,
-    confkey: "11223AAA",
-  },
-  {
-    _id: "63c0a1c3b4e3d3eecf1d3d25",
-    name: "Alice Johnson",
-    id: "20PW03",
-    hashword: "5f4dcc3b5aa765d61d8327deb882cf99",
-    confirmed: false,
-    confkey: "11223AAA",
-  },
-];
-
 export default function Tab() {
   const navigation = useNavigation();
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState([]);
+  const GetApprovalUsers = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.gms.intellx.in/manager/pending-approval"
+      );
+      setUser(response.data.users);
+    } catch (error: any) {
+      console.log("Error fetching users:", error);
+      Alert.alert("Error fetching users:", error.message);
+    }
+  };
 
   useEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
+    GetApprovalUsers();
   }, []);
 
   return (
@@ -87,7 +58,7 @@ export default function Tab() {
               <Text style={styles.headingText}>User Details</Text>
             </View>
             {user.map((u, i) => (
-              <ApprovalCard key={i} user={u} />
+              <ApprovalCard key={i} user={u} resetFunction={GetApprovalUsers} />
             ))}
           </SafeAreaView>
         </View>

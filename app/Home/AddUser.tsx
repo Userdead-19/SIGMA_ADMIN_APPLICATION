@@ -1,23 +1,20 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
-import { RouteProp, useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 import { router } from "expo-router";
-
-type RootStackParamList = {
-  Login: undefined;
-  SignUp: undefined;
-};
 
 type State = {
   fullName: string;
-  email: string;
+  id: string;
   password: string;
   confirmPassword: string;
 };
@@ -33,7 +30,7 @@ const reducer = (state: State, action: Action): State => {
     case "SET_FULL_NAME":
       return { ...state, fullName: action.payload };
     case "SET_EMAIL":
-      return { ...state, email: action.payload };
+      return { ...state, id: action.payload };
     case "SET_PASSWORD":
       return { ...state, password: action.payload };
     case "SET_CONFIRM_PASSWORD":
@@ -46,18 +43,61 @@ const reducer = (state: State, action: Action): State => {
 const SignUpScreen = () => {
   const [state, dispatch] = useReducer(reducer, {
     fullName: "",
-    email: "",
+    id: "",
     password: "",
     confirmPassword: "",
   });
+
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
-  const CreateNewUser = async () => {};
+  const validateInputs = () => {
+    const { fullName, id, password, confirmPassword } = state;
+    if (!fullName || !id || !password || !confirmPassword) {
+      Alert.alert("Error", "All fields are required.");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match.");
+      return false;
+    }
+    // Add more validation logic if needed (e.g., email format, password strength)
+    return true;
+  };
+
+  const CreateNewUser = async () => {
+    if (!validateInputs()) return;
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "https://api.gms.intellx.in/administrator/new-user",
+        {
+          name: state.fullName,
+          id: state.id,
+          hashword: state.password,
+        }
+      );
+      if (response.status === 201) {
+        Alert.alert("Success", "User created successfully.");
+        router.back(); // Navigate back to the previous screen
+      } else {
+        Alert.alert("Error", "Failed to create user.");
+        console.log("Failed to create user:", response);
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+      console.error("Error creating user:", error.response || error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     navigation.setOptions({
       headerTitle: "",
     });
   }, []);
+
   return (
     <View style={styles.container}>
       <View
@@ -86,9 +126,9 @@ const SignUpScreen = () => {
         <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder="College ID"
           placeholderTextColor="#999"
-          value={state.email}
+          value={state.id}
           onChangeText={(text) =>
             dispatch({ type: "SET_EMAIL", payload: text })
           }
@@ -122,11 +162,12 @@ const SignUpScreen = () => {
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => {
-          router.back();
-        }}
+        onPress={CreateNewUser}
+        disabled={loading}
       >
-        <Text style={styles.buttonText}>CREATE</Text>
+        <Text style={styles.buttonText}>
+          {loading ? "CREATING..." : "CREATE"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -178,13 +219,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 16,
-  },
-  signUpText: {
-    fontSize: 14,
-    color: "#999",
-  },
-  signUpLink: {
-    color: "#ff9f00",
   },
 });
 
