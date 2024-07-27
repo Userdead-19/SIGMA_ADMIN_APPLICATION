@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   View,
   Text,
@@ -11,9 +11,10 @@ import { RouteProp } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
 import { Image } from "react-native";
-import { useUser } from "@/Hooks/UserContext"; // Adjust the import path as needed
+import { useUser } from "@/Hooks/UserContext"; 
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import * as jwt from "jwt-decode";
 
 type State = {
@@ -126,6 +127,11 @@ const LoginScreen = () => {
   };
 
   return (
+    <KeyboardAwareScrollView
+      contentContainerStyle={styles.scrollView}
+      enableOnAndroid={true}
+      extraHeight={100}
+    >
     <View style={styles.container}>
       <Image
         source={require("../../assets/images/sigmalogo.png")}
@@ -145,7 +151,7 @@ const LoginScreen = () => {
         <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder="Register Number"
           placeholderTextColor="#999"
           value={state.email}
           onFocus={() => setEmailFocused(true)}
@@ -199,6 +205,7 @@ const LoginScreen = () => {
         </Text>
       </TouchableOpacity>
     </View>
+    </KeyboardAwareScrollView>
   );
 };
 
@@ -212,8 +219,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   logo: {
-    width: 300, // Adjust the width as needed
-    height: 300, // Adjust the height as needed
+    width: 200, // Adjust the width as needed
+    height: 200, // Adjust the height as needed
     marginBottom: "-20%",
     marginTop: "-50%", // Add some margin if needed
   },
@@ -229,6 +236,10 @@ const styles = StyleSheet.create({
     color: "#999",
     marginBottom: 20,
     marginLeft: "-40%",
+  },
+  scrollView: {
+    flexGrow: 1,
+    padding: "2%",
   },
   inputContainer: {
     flexDirection: "row",

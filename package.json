@@ -32,6 +32,7 @@
     "react-dom": "18.2.0",
     "react-native": "0.74.3",
     "react-native-heroicons": "^4.0.0",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-paper": "^5.12.3",
     "twrnc": "^4.4.0"
   },

@@ -12,6 +12,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { router } from "expo-router";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 type State = {
   fullName: string;
@@ -96,6 +97,11 @@ const SignUpScreen = () => {
   };
 
   return (
+    <KeyboardAwareScrollView
+      contentContainerStyle={styles.scrollView}
+      enableOnAndroid={true}
+      extraHeight={100}
+    >
     <View style={styles.container}>
       <Image
         source={require("../../assets/images/sigmalogo.png")}
@@ -128,7 +134,7 @@ const SignUpScreen = () => {
         <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
         <TextInput
           style={styles.input}
-          placeholder="College ID"
+          placeholder="Register Number"
           placeholderTextColor="#999"
           value={state.id}
           onChangeText={(text) =>
@@ -185,10 +191,15 @@ const SignUpScreen = () => {
         </Text>
       </TouchableOpacity>
     </View>
+    </KeyboardAwareScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flexGrow: 1,
+    padding: "2%",
+  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -243,8 +254,8 @@ const styles = StyleSheet.create({
     color: "#8283e9",
   },
   logo: {
-    width: 300, // Adjust the width as needed
-    height: 300, // Adjust the height as needed
+    width: 200, // Adjust the width as needed
+    height: 200, // Adjust the height as needed
     marginBottom: "-20%",
     marginTop: "-50%", // Add some margin if needed
   },
