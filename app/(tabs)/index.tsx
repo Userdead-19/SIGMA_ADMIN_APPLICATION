@@ -64,7 +64,7 @@ const LoginScreen = () => {
 
   const checkForToken = async () => {
     try {
-      let token = await AsyncStorage.getItem("token");
+      let token = await AsyncStorage.getItem("admin-token");
       const decode = token ? jwt.jwtDecode(token) : null;
       console.log(decode);
       const body = {
@@ -108,7 +108,7 @@ const LoginScreen = () => {
       );
       console.log(response.data);
       await AsyncStorage.setItem("token", response.data.token);
-      const token = await AsyncStorage.getItem("token");
+      const token = await AsyncStorage.getItem("admin-token");
       console.log(token);
       dispatch({ type: "LOGIN_SUCCESS", payload: response.data });
       updateUser({

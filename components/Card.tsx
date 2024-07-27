@@ -37,13 +37,7 @@ interface Issue {
   anonymity: string;
 }
 
-const Card = ({
-  issue,
-  fetchAllIssues,
-}: {
-  issue: Issue;
-  fetchAllIssues: Function;
-}) => (
+const Card = ({ issue }: { issue: Issue }) => (
   <View style={tw`bg-white rounded-2xl p-4 mb-4 shadow gap-5`}>
     <Text style={tw`text-lg font-bold mb-2`}>{issue.issue.issueContent}</Text>
     <View style={tw`flex-row items-center mb-2 gap-10`}>

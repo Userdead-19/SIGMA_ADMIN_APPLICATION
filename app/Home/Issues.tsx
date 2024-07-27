@@ -1,4 +1,4 @@
-import React, { useReducer, useRef, useEffect } from "react";
+import React, { useReducer, useRef, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 import Card from "@/components/Card";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
+import { useFocusEffect } from "expo-router";
 
 interface Issue {
   _id: { $oid: string };
@@ -106,9 +107,11 @@ const IssuePage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAllIssues();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchAllIssues();
+    }, [])
+  );
 
   const handleButtonPress = (stage: string) => {
     dispatch({ type: SET_CURRENT_STAGE, payload: stage });
@@ -123,13 +126,6 @@ const IssuePage = () => {
     inputRange: [0, 1],
     outputRange: ["0%", "50%"],
   });
-
-  // Debug logs
-  useEffect(() => {
-    console.log("Current stage:", state.currentStage);
-    console.log("Issues:", state.issues);
-    console.log("Filtered issues:", state.filteredIssues);
-  }, [state.currentStage, state.issues, state.filteredIssues]);
 
   return (
     <View style={styles.container}>
@@ -166,9 +162,7 @@ const IssuePage = () => {
       </View>
       <FlatList
         data={state.filteredIssues}
-        renderItem={({ item }) => (
-          <Card issue={item} fetchAllIssues={fetchAllIssues} />
-        )}
+        renderItem={({ item }) => <Card issue={item} />}
         keyExtractor={(item) => item.issueNo}
         contentContainerStyle={styles.listContainer}
       />

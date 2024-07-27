@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 import {
   ScrollView,
   View,
@@ -18,6 +18,7 @@ import {
   Provider as PaperProvider,
 } from "react-native-paper";
 import tw from "twrnc";
+import { useFocusEffect } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -101,8 +102,13 @@ export default function Tab() {
     setSortAsc(!sortAsc);
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchIssues();
+    }, [])
+  );
+
   useEffect(() => {
-    fetchIssues();
     navigation.setOptions({
       headerShown: false,
     });
