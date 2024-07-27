@@ -50,7 +50,7 @@ const UserCard = ({
   const deleteCurrentUser = async (id: string) => {
     try {
       const body = {
-        id: id,
+        id: user.id,
       };
       const response = await axios.delete(
         "https://api.gms.intellx.in/client/delete",
