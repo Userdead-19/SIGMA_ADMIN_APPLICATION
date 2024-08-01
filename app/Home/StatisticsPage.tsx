@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import BarGraph from "@/components/barGraphComponent"; // Assuming you have a BarGraph component
 import axios from "axios";
 import PieChartExample from "@/components/pieChartComponent";
+import { useNavigation } from "expo-router";
+import { Appbar } from "react-native-paper";
 
 // Define the types for the data you are working with
 interface Issue {
@@ -60,7 +62,7 @@ const StatisticsPage: React.FC = () => {
   const [values, setValues] = useState<number[]>([]);
   const [openIssues, setOpenIssues] = useState<number>(0);
   const [closedIssues, setClosedIssues] = useState<number>(0);
-
+  const navigation = useNavigation();
   const fetchData = async () => {
     try {
       const response = await axios.get("https://api.gms.intellx.in/tasks");
@@ -90,6 +92,9 @@ const StatisticsPage: React.FC = () => {
   useEffect(() => {
     fetchData();
     fetchData2();
+    navigation.setOptions({
+      headerShown: false,
+    });
   }, []);
 
   useEffect(() => {
@@ -111,29 +116,35 @@ const StatisticsPage: React.FC = () => {
   }, [data]);
 
   return (
-    <View style={styles.container}>
-      {isLoading ? (
-        <Text>Loading...</Text>
-      ) : (
-        <ScrollView
-          contentContainerStyle={styles.scrollViewContent}
-          showsVerticalScrollIndicator={false}
-          alwaysBounceVertical
-        >
-          <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Issue Categories</Text>
-            <BarGraph labels={labels} values={values} />
-          </View>
-          <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Issue Status</Text>
-            <BarGraph
-              labels={["Open Issues", "Closed Issues"]}
-              values={[openIssues, closedIssues]}
-            />
-          </View>
-        </ScrollView>
-      )}
-    </View>
+    <>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => navigation.goBack()} />
+        <Appbar.Content title="Statistics" />
+      </Appbar.Header>
+      <View style={styles.container}>
+        {isLoading ? (
+          <Text>Loading...</Text>
+        ) : (
+          <ScrollView
+            contentContainerStyle={styles.scrollViewContent}
+            showsVerticalScrollIndicator={false}
+            alwaysBounceVertical
+          >
+            <View style={styles.chartContainer}>
+              <Text style={styles.chartTitle}>Issue Categories</Text>
+              <BarGraph labels={labels} values={values} />
+            </View>
+            <View style={styles.chartContainer}>
+              <Text style={styles.chartTitle}>Issue Status</Text>
+              <BarGraph
+                labels={["Open Issues", "Closed Issues"]}
+                values={[openIssues, closedIssues]}
+              />
+            </View>
+          </ScrollView>
+        )}
+      </View>
+    </>
   );
 };
 

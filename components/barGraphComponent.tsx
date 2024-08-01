@@ -29,8 +29,8 @@ const BarGraph = ({ labels, values }: { labels: any; values: any }) => {
     ],
   };
 
-  const chartWidth = screenWidth * 0.85; // Keep the width same
-  const chartHeight = screenHeight * 0.4; // Keep the height same
+  const chartWidth = screenWidth * 0.9; // Keep the width same
+  const chartHeight = screenHeight * 0.5; // Keep the height same
 
   console.log(labels, values);
 
