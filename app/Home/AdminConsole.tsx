@@ -13,7 +13,6 @@ import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { FAB, Provider as PaperProvider } from "react-native-paper";
 import ApprovalCard from "@/components/ApprovalCard";
-import { router } from "expo-router";
 import axios from "axios";
 
 const { width } = Dimensions.get("window");
@@ -22,6 +21,7 @@ export default function Tab() {
   const navigation = useNavigation();
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState([]);
+
   const GetApprovalUsers = async () => {
     try {
       const response = await axios.get(
@@ -57,9 +57,19 @@ export default function Tab() {
               </TouchableOpacity>
               <Text style={styles.headingText}>User Details</Text>
             </View>
-            {user.map((u, i) => (
-              <ApprovalCard key={i} user={u} resetFunction={GetApprovalUsers} />
-            ))}
+            {user.length > 0 ? (
+              user.map((u, i) => (
+                <ApprovalCard
+                  key={i}
+                  user={u}
+                  resetFunction={GetApprovalUsers}
+                />
+              ))
+            ) : (
+              <View style={styles.noRequestsContainer}>
+                <Text style={styles.noRequestsText}>No requests pending</Text>
+              </View>
+            )}
           </SafeAreaView>
         </View>
       </ScrollView>
@@ -98,6 +108,14 @@ const styles = StyleSheet.create({
     color: "#555555",
     textAlign: "center",
     flex: 1,
+  },
+  noRequestsContainer: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  noRequestsText: {
+    fontSize: 16,
+    color: "#555555",
   },
   fab: {
     position: "absolute",

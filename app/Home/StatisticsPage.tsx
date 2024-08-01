@@ -62,22 +62,6 @@ const StatisticsPage: React.FC = () => {
     try {
       const response = await axios.get("https://api.gms.intellx.in/tasks");
       setData(response.data.issues);
-      console.log("Data", response.data);
-      if (data.length > 0) {
-        const categoryCount: Record<string, number> = {};
-        data.forEach((item) => {
-          const category = item.issue.issueCat;
-          if (categoryCount[category]) {
-            categoryCount[category]++;
-          } else {
-            categoryCount[category] = 1;
-          }
-        });
-
-        setLabels(Object.keys(categoryCount));
-        setValues(Object.values(categoryCount));
-        console.log("Category", categoryCount);
-      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -89,9 +73,26 @@ const StatisticsPage: React.FC = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (data.length > 0) {
+      const categoryCount: Record<string, number> = {};
+      data.forEach((item) => {
+        const category = item.issue.issueCat;
+        if (categoryCount[category]) {
+          categoryCount[category]++;
+        } else {
+          categoryCount[category] = 1;
+        }
+      });
+
+      setLabels(Object.keys(categoryCount));
+      setValues(Object.values(categoryCount));
+      console.log("Category", categoryCount);
+    }
+  }, [data]);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Issue Categories</Text>
       {isLoading ? (
         <Text>Loading...</Text>
       ) : (

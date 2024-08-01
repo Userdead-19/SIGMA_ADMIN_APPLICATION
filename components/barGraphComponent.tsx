@@ -22,11 +22,9 @@ const BarGraph = ({ labels, values }: { labels: any; values: any }) => {
       },
     ],
   };
-
-  // Define dynamic width and height based on screen size
-  const chartWidth = screenWidth - 40; // Adjust the width as per your requirement
-  const chartHeight = Math.min(screenHeight * 0.4, 300); // Adjust the height as per your requirement
-
+  const chartWidth = screenWidth * 0.9; // Increase the width
+  const chartHeight = screenHeight * 0.5; // InAdjust the height as per your requirement
+  console.log(labels, values);
   return (
     <View>
       <BarChart
