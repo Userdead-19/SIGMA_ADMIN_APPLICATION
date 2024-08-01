@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import BarGraph from "@/components/barGraphComponent"; // Assuming you have a BarGraph component
 import axios from "axios";
+import PieChartExample from "@/components/pieChartComponent";
 
 // Define the types for the data you are working with
 interface Issue {
@@ -57,6 +58,8 @@ const StatisticsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [labels, setLabels] = useState<string[]>([]);
   const [values, setValues] = useState<number[]>([]);
+  const [openIssues, setOpenIssues] = useState<number>(0);
+  const [closedIssues, setClosedIssues] = useState<number>(0);
 
   const fetchData = async () => {
     try {
@@ -69,8 +72,24 @@ const StatisticsPage: React.FC = () => {
     }
   };
 
+  const fetchData2 = async () => {
+    try {
+      const response1 = await axios.get(
+        "https://api.gms.intellx.in/client/issues/total/closed"
+      );
+      const response2 = await axios.get(
+        "https://api.gms.intellx.in/client/issues/total/open"
+      );
+      setOpenIssues(response2.data.open_issues);
+      setClosedIssues(response1.data.closed_issues);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchData2();
   }, []);
 
   useEffect(() => {
@@ -96,7 +115,23 @@ const StatisticsPage: React.FC = () => {
       {isLoading ? (
         <Text>Loading...</Text>
       ) : (
-        <BarGraph labels={labels} values={values} />
+        <ScrollView
+          contentContainerStyle={styles.scrollViewContent}
+          showsVerticalScrollIndicator={false}
+          alwaysBounceVertical
+        >
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>Issue Categories</Text>
+            <BarGraph labels={labels} values={values} />
+          </View>
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>Issue Status</Text>
+            <BarGraph
+              labels={["Open Issues", "Closed Issues"]}
+              values={[openIssues, closedIssues]}
+            />
+          </View>
+        </ScrollView>
       )}
     </View>
   );
@@ -109,7 +144,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 10,
+  },
+  scrollViewContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingBottom: 20,
+  },
+  chartContainer: {
+    marginBottom: 20,
+    width: "100%",
+    alignItems: "center",
+  },
+  chartTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   header: {
     fontSize: 20,

@@ -6,11 +6,17 @@ const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
 
 const chartConfig = {
-  backgroundGradientFrom: "#1E2923",
-  backgroundGradientTo: "#08130D",
-  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+  backgroundGradientFrom: "#F2F2F2",
+  backgroundGradientTo: "#F2F2F2",
+  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   barPercentage: 0.5,
   useShadowColorFromDataset: false,
+  propsForBackgroundLines: {
+    strokeWidth: 1,
+    stroke: "#ECECEC",
+  },
+  fillShadowGradient: "#3872F7", // Main bar color
+  fillShadowGradientOpacity: 1,
 };
 
 const BarGraph = ({ labels, values }: { labels: any; values: any }) => {
@@ -22,11 +28,20 @@ const BarGraph = ({ labels, values }: { labels: any; values: any }) => {
       },
     ],
   };
-  const chartWidth = screenWidth * 0.9; // Increase the width
-  const chartHeight = screenHeight * 0.5; // InAdjust the height as per your requirement
+
+  const chartWidth = screenWidth * 0.85; // Keep the width same
+  const chartHeight = screenHeight * 0.4; // Keep the height same
+
   console.log(labels, values);
+
   return (
-    <View>
+    <View
+      style={{
+        borderWidth: 1,
+        borderRadius: 10,
+        padding: 5,
+      }}
+    >
       <BarChart
         yAxisLabel=""
         yAxisSuffix=""
