@@ -1,0 +1,5 @@
+Change the Eas.json to build APK 
+
+Reference:
+https://stackoverflow.com/questions/70392315/react-native-build-apk-file-using-expo-cli
+
