@@ -145,9 +145,15 @@ export default function Tab() {
                 <Text style={{ color: "white" }}>Sort</Text>
               </Button>
             </View>
-            {state.filteredIssueList.map((card: Issue, index: number) => (
-              <Card key={index} issue={card} />
-            ))}
+            {state.filteredIssueList.length === 0 ? (
+              <View style={styles.emptyMessageContainer}>
+                <Text style={styles.emptyMessageText}>No issues found</Text>
+              </View>
+            ) : (
+              state.filteredIssueList.map((card: Issue, index: number) => (
+                <Card key={index} issue={card} />
+              ))
+            )}
           </SafeAreaView>
         </View>
       </ScrollView>
@@ -201,5 +207,15 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     backgroundColor: "#ff9f00",
+  },
+  emptyMessageContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 200, // Adjust the height as needed
+  },
+  emptyMessageText: {
+    fontSize: 18,
+    color: "#555555",
   },
 });
