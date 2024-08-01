@@ -338,7 +338,9 @@ export default function TabLayout() {
                     tw`bg-white rounded-[50px] ml-1`,
                     { width: "37%", height: height * 0.17 },
                   ]}
-                  onPress={() => {}}
+                  onPress={() => {
+                    router.push("/Home/StatisticsPage");
+                  }}
                 >
                   <View style={tw`mt-4 ml-4`}>
                     <ChartBarIcon size={34} color={"blue"} />

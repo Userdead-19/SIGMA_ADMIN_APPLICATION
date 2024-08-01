@@ -11,7 +11,7 @@ import { RouteProp } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
 import { Image } from "react-native";
-import { useUser } from "@/Hooks/UserContext"; 
+import { useUser } from "@/Hooks/UserContext";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -108,7 +108,7 @@ const LoginScreen = () => {
         }
       );
       console.log(response.data);
-      await AsyncStorage.setItem("token", response.data.token);
+      await AsyncStorage.setItem("admin-token", response.data.token);
       const token = await AsyncStorage.getItem("admin-token");
       console.log(token);
       dispatch({ type: "LOGIN_SUCCESS", payload: response.data });
@@ -132,79 +132,80 @@ const LoginScreen = () => {
       enableOnAndroid={true}
       extraHeight={100}
     >
-    <View style={styles.container}>
-      <Image
-        source={require("../../assets/images/sigmalogo.png")}
-        style={styles.logo}
-      />
+      <View style={styles.container}>
+        <Image
+          source={require("../../assets/images/sigmalogo.png")}
+          style={styles.logo}
+        />
 
-      <View style={{ padding: 20 }}>
-        <Text style={styles.title}>Login</Text>
-        <Text style={styles.subtitle}>Please sign in to continue.</Text>
-      </View>
-      <View
-        style={[
-          styles.inputContainer,
-          isEmailFocused && styles.inputContainerFocused,
-        ]}
-      >
-        <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
-        <TextInput
-          style={styles.input}
-          placeholder="Register Number"
-          placeholderTextColor="#999"
-          value={state.email}
-          onFocus={() => setEmailFocused(true)}
-          onBlur={() => setEmailFocused(false)}
-          onChangeText={(text) =>
-            dispatch({ type: "SET_EMAIL", payload: text })
-          }
-        />
-      </View>
-      <View
-        style={[
-          styles.inputContainer,
-          isPasswordFocused && styles.inputContainerFocused,
-        ]}
-      >
-        <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry={secureText}
-          value={state.password}
-          onFocus={() => setPasswordFocused(true)}
-          onBlur={() => setPasswordFocused(false)}
-          onChangeText={(text) =>
-            dispatch({ type: "SET_PASSWORD", payload: text })
-          }
-        />
-        <TouchableOpacity onPress={() => setSecureText(!secureText)}>
-          <MaterialCommunityIcons
-            name={secureText ? "eye" : "eye-off"}
-            size={20}
-            color="#999"
+        <View style={{ padding: 20 }}>
+          <Text style={styles.title}>Login</Text>
+          <Text style={styles.subtitle}>Please sign in to continue.</Text>
+        </View>
+        <View
+          style={[
+            styles.inputContainer,
+            isEmailFocused && styles.inputContainerFocused,
+          ]}
+        >
+          <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
+          <TextInput
+            style={styles.input}
+            placeholder="Register Number"
+            placeholderTextColor="#999"
+            value={state.email}
+            onFocus={() => setEmailFocused(true)}
+            onBlur={() => setEmailFocused(false)}
+            onChangeText={(text) =>
+              dispatch({ type: "SET_EMAIL", payload: text })
+            }
           />
+        </View>
+        <View
+          style={[
+            styles.inputContainer,
+            isPasswordFocused && styles.inputContainerFocused,
+          ]}
+        >
+          <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry={secureText}
+            value={state.password}
+            onFocus={() => setPasswordFocused(true)}
+            onBlur={() => setPasswordFocused(false)}
+            onChangeText={(text) =>
+              dispatch({ type: "SET_PASSWORD", payload: text })
+            }
+          />
+          <TouchableOpacity onPress={() => setSecureText(!secureText)}>
+            <MaterialCommunityIcons
+              name={secureText ? "eye" : "eye-off"}
+              size={20}
+              color="#999"
+            />
+          </TouchableOpacity>
+        </View>
+        {state.loading ? (
+          <ActivityIndicator size="large" color="#8283e9" />
+        ) : (
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>LOGIN</Text>
+          </TouchableOpacity>
+        )}
+        {state.error && <Text style={styles.errorText}>{state.error}</Text>}
+        <TouchableOpacity
+          onPress={() => router.push("/(tabs)/Signup")}
+          style={{ position: "absolute", bottom: "4%" }}
+        >
+          <Text style={styles.signUpText}>
+            Don't have an account?{" "}
+            <Text style={styles.signUpLink}>Sign up</Text>
+          </Text>
         </TouchableOpacity>
       </View>
-      {state.loading ? (
-        <ActivityIndicator size="large" color="#8283e9" />
-      ) : (
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>LOGIN</Text>
-        </TouchableOpacity>
-      )}
-      {state.error && <Text style={styles.errorText}>{state.error}</Text>}
-      <TouchableOpacity
-        onPress={() => router.push("/(tabs)/Signup")}
-        style={{ position: "absolute", bottom: "4%" }}
-      >
-        <Text style={styles.signUpText}>
-          Don't have an account? <Text style={styles.signUpLink}>Sign up</Text>
-        </Text>
-      </TouchableOpacity>
-    </View>
     </KeyboardAwareScrollView>
   );
 };
