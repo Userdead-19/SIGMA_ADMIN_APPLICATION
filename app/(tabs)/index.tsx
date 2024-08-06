@@ -118,11 +118,12 @@ const LoginScreen = () => {
         confirmed: true,
       });
       router.replace("/Home");
-    } catch (error) {
+    } catch (error: any) {
       dispatch({
         type: "LOGIN_FAILURE",
         payload: "Login failed. Please try again.",
       });
+      console.log(error.response);
     }
   };
 

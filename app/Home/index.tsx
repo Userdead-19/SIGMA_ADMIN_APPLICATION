@@ -33,6 +33,7 @@ const initialState = {
   issuesResolved: 0,
   TodoList: 0,
   totalIssues: 0,
+  pendingIssues: 0,
 };
 
 // Reducer function
@@ -191,7 +192,7 @@ export default function TabLayout() {
             <View
               style={[
                 tw`bg-white p-4 rounded-lg items-center justify-center`,
-                { width: width * 0.43, height: height * 0.12 },
+                { width: width * 0.28, height: height * 0.12 },
               ]}
             >
               <Text style={[tw`text-lg font-bold`, { fontSize: width * 0.05 }]}>
@@ -206,7 +207,7 @@ export default function TabLayout() {
             <View
               style={[
                 tw`bg-white p-4 rounded-lg items-center justify-center`,
-                { width: width * 0.43, height: height * 0.12 },
+                { width: width * 0.28, height: height * 0.12 },
               ]}
             >
               <Text style={[tw`text-lg font-bold`, { fontSize: width * 0.05 }]}>
@@ -216,6 +217,21 @@ export default function TabLayout() {
                 style={[tw`text-xl font-bold mt-2`, { fontSize: width * 0.06 }]}
               >
                 {state.issuesResolved}
+              </Text>
+            </View>
+            <View
+              style={[
+                tw`bg-white p-4 rounded-lg items-center justify-center`,
+                { width: width * 0.28, height: height * 0.12 },
+              ]}
+            >
+              <Text style={[tw`text-lg font-bold`, { fontSize: width * 0.05 }]}>
+                Pending Issues
+              </Text>
+              <Text
+                style={[tw`text-xl font-bold mt-2`, { fontSize: width * 0.06 }]}
+              >
+                {state.TodoList}
               </Text>
             </View>
           </View>
