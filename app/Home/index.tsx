@@ -33,6 +33,7 @@ const initialState = {
   issuesResolved: 0,
   TodoList: 0,
   totalIssues: 0,
+  pendingIssues: 0,
 };
 
 // Reducer function
@@ -187,18 +188,26 @@ export default function TabLayout() {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={tw`px-3 mt-4 mb-1 flex-row gap-5`}>
+          <View style={tw`px-3 mt-4 mb-1 flex-row justify-between`}>
             <View
               style={[
                 tw`bg-white p-4 rounded-lg items-center justify-center`,
-                { width: width * 0.43, height: height * 0.12 },
+                { width: width * 0.28, height: height * 0.12 },
               ]}
             >
-              <Text style={[tw`text-lg font-bold`, { fontSize: width * 0.05 }]}>
+              <Text
+                style={[
+                  tw`text-center`,
+                  { fontSize: width * 0.045, fontWeight: "600", color: "#333" },
+                ]}
+              >
                 Total Issues
               </Text>
               <Text
-                style={[tw`text-xl font-bold mt-2`, { fontSize: width * 0.06 }]}
+                style={[
+                  tw`mt-2 text-center`,
+                  { fontSize: width * 0.065, fontWeight: "700", color: "#000" },
+                ]}
               >
                 {state.totalIssues}
               </Text>
@@ -206,19 +215,51 @@ export default function TabLayout() {
             <View
               style={[
                 tw`bg-white p-4 rounded-lg items-center justify-center`,
-                { width: width * 0.43, height: height * 0.12 },
+                { width: width * 0.28, height: height * 0.12 },
               ]}
             >
-              <Text style={[tw`text-lg font-bold`, { fontSize: width * 0.05 }]}>
+              <Text
+                style={[
+                  tw`text-center`,
+                  { fontSize: width * 0.045, fontWeight: "600", color: "#333" },
+                ]}
+              >
                 Solved Issues
               </Text>
               <Text
-                style={[tw`text-xl font-bold mt-2`, { fontSize: width * 0.06 }]}
+                style={[
+                  tw`mt-2 text-center`,
+                  { fontSize: width * 0.065, fontWeight: "700", color: "#000" },
+                ]}
               >
                 {state.issuesResolved}
               </Text>
             </View>
+            <View
+              style={[
+                tw`bg-white p-4 rounded-lg items-center justify-center`,
+                { width: width * 0.28, height: height * 0.12 },
+              ]}
+            >
+              <Text
+                style={[
+                  tw`text-center`,
+                  { fontSize: width * 0.045, fontWeight: "600", color: "#333" },
+                ]}
+              >
+                Pending Issues
+              </Text>
+              <Text
+                style={[
+                  tw`mt-2 text-center`,
+                  { fontSize: width * 0.065, fontWeight: "700", color: "#000" },
+                ]}
+              >
+                {state.TodoList}
+              </Text>
+            </View>
           </View>
+
           <View style={tw`px-1`}>
             <View style={[tw`flex flex-row space-x-1 mt-2`, { gap: 4 }]}>
               <TouchableOpacity

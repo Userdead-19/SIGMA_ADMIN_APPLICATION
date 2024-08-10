@@ -1,11 +1,12 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState, useRef } from "react";
 import {
-  ScrollView,
+  FlatList,
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
@@ -28,6 +29,9 @@ const initialState = {
   open: false,
   user: [],
   filteredUser: [],
+  loading: false,
+  page: 1,
+  hasMore: true,
 };
 
 // Reducer function
@@ -36,9 +40,18 @@ const reducer = (state: any, action: any) => {
     case "SET_OPEN":
       return { ...state, open: action.payload };
     case "SET_USER":
-      return { ...state, user: action.payload, filteredUser: action.payload };
+      return {
+        ...state,
+        user: [...state.user, ...action.payload],
+        filteredUser: [...state.user, ...action.payload],
+        page: state.page + 1,
+      };
     case "SET_FILTERED_USER":
       return { ...state, filteredUser: action.payload };
+    case "SET_LOADING":
+      return { ...state, loading: action.payload };
+    case "SET_HAS_MORE":
+      return { ...state, hasMore: action.payload };
     default:
       return state;
   }
@@ -51,13 +64,24 @@ export default function Tab() {
   const [sortAsc, setSortAsc] = useState(true);
 
   const fetchAllUsers = async () => {
+    if (!state.hasMore) return;
+
+    dispatch({ type: "SET_LOADING", payload: true });
     try {
       const response = await axios.get(
-        "https://api.gms.intellx.in/administrator/all-users"
+        `https://api.gms.intellx.in/administrator/all-users?page=${state.page}`
       );
-      dispatch({ type: "SET_USER", payload: response.data.users });
+      const users = response.data.users;
+
+      if (users.length > 0) {
+        dispatch({ type: "SET_USER", payload: users });
+      } else {
+        dispatch({ type: "SET_HAS_MORE", payload: false });
+      }
     } catch (error) {
       console.log(error);
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
@@ -91,49 +115,61 @@ export default function Tab() {
     });
   }, [navigation]);
 
+  const renderFooter = () => {
+    if (!state.loading) return null;
+    return <ActivityIndicator size="large" color="#0000ff" animating={true} />;
+  };
+
   return (
     <PaperProvider>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
-          <SafeAreaView style={{ paddingHorizontal: width * 0.025 }}>
-            <View style={styles.header}>
-              <TouchableOpacity
-                style={styles.iconContainer}
-                onPress={() => {
-                  navigation.goBack();
+      <View style={styles.container}>
+        <SafeAreaView style={{ paddingHorizontal: width * 0.025 }}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={() => {
+                navigation.goBack();
+              }}
+            >
+              <AntDesign name="left" size={15} color="#555555" />
+            </TouchableOpacity>
+            <Text style={styles.headingText}>User Details</Text>
+          </View>
+          <View style={styles.searchSortContainer}>
+            <Searchbar
+              placeholder="Search"
+              onChangeText={onChangeSearch}
+              value={searchQuery}
+              style={styles.searchBar}
+            />
+            <Button
+              mode="contained"
+              onPress={onSortUsers}
+              style={[styles.sortButton, tw`bg-blue-500`]}
+            >
+              <Text
+                style={{
+                  color: "white",
                 }}
               >
-                <AntDesign name="left" size={15} color="#555555" />
-              </TouchableOpacity>
-              <Text style={styles.headingText}>User Details</Text>
-            </View>
-            <View style={styles.searchSortContainer}>
-              <Searchbar
-                placeholder="Search"
-                onChangeText={onChangeSearch}
-                value={searchQuery}
-                style={styles.searchBar}
-              />
-              <Button
-                mode="contained"
-                onPress={onSortUsers}
-                style={[styles.sortButton, tw`bg-blue-500`]}
-              >
-                <Text
-                  style={{
-                    color: "white",
-                  }}
-                >
-                  Sort
-                </Text>
-              </Button>
-            </View>
-            {state.filteredUser.map((u: any, i: any) => (
-              <UserCard key={i} user={u} reloadFunction={fetchAllUsers} />
-            ))}
-          </SafeAreaView>
-        </View>
-      </ScrollView>
+                Sort
+              </Text>
+            </Button>
+          </View>
+
+          <FlatList
+            data={state.filteredUser}
+            renderItem={({ item }) => (
+              <UserCard user={item} reloadFunction={fetchAllUsers} />
+            )}
+            keyExtractor={(item, index) => `${item.id}-${index}`}
+            onEndReached={fetchAllUsers}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={renderFooter}
+            showsVerticalScrollIndicator={false}
+          />
+        </SafeAreaView>
+      </View>
       <FAB
         style={[styles.fab, tw`bg-blue-500`]}
         icon={state.open ? "minus" : "plus"}

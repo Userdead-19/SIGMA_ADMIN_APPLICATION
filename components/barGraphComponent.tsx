@@ -5,21 +5,37 @@ import { BarChart } from "react-native-chart-kit";
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
 
-const chartConfig = {
-  backgroundGradientFrom: "#F2F2F2",
-  backgroundGradientTo: "#F2F2F2",
-  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  barPercentage: 0.5,
-  useShadowColorFromDataset: false,
-  propsForBackgroundLines: {
-    strokeWidth: 1,
-    stroke: "#ECECEC",
-  },
-  fillShadowGradient: "#3872F7", // Main bar color
-  fillShadowGradientOpacity: 1,
-};
+const BarGraph = ({
+  labels,
+  values,
+}: {
+  labels: string[];
+  values: number[];
+}) => {
+  // Determine the maximum value in the dataset
+  const maxValue = Math.max(...values);
 
-const BarGraph = ({ labels, values }: { labels: any; values: any }) => {
+  // Define the number of intervals/ticks on the Y-axis
+  const yAxisTickCount = 5;
+
+  // Determine the interval between ticks
+  const yAxisInterval = Math.ceil(maxValue / yAxisTickCount);
+
+  const chartConfig = {
+    backgroundGradientFrom: "#F2F2F2",
+    backgroundGradientTo: "#F2F2F2",
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false,
+    propsForBackgroundLines: {
+      strokeWidth: 1,
+      stroke: "#ECECEC",
+    },
+    fillShadowGradient: "#3872F7", // Main bar color
+    fillShadowGradientOpacity: 1,
+    yAxisInterval, // Custom interval for Y-axis
+  };
+
   const chartData = {
     labels: labels,
     datasets: [
@@ -29,10 +45,8 @@ const BarGraph = ({ labels, values }: { labels: any; values: any }) => {
     ],
   };
 
-  const chartWidth = screenWidth * 0.9; // Keep the width same
-  const chartHeight = screenHeight * 0.5; // Keep the height same
-
-  console.log(labels, values);
+  const chartWidth = screenWidth * 0.9;
+  const chartHeight = screenHeight * 0.5;
 
   return (
     <View
@@ -49,7 +63,9 @@ const BarGraph = ({ labels, values }: { labels: any; values: any }) => {
         width={chartWidth}
         height={chartHeight}
         chartConfig={chartConfig}
-        verticalLabelRotation={30}
+        verticalLabelRotation={labels.length > 5 ? 30 : 0} // Rotate labels if there are many
+        fromZero
+        yAxisInterval={yAxisInterval} // Apply the custom Y-axis interval
       />
     </View>
   );
