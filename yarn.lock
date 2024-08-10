@@ -2623,6 +2623,11 @@
     "@urql/core" ">=2.3.1"
     wonka "^4.0.14"
 
+"@venedicto/react-native-dropdown@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.npmjs.org/@venedicto/react-native-dropdown/-/react-native-dropdown-2.0.4.tgz"
+  integrity sha512-+bpDaFK/t5nd8bvAyJlgSiZAFXAR4RwgHugkLPnbQXgA67kksTflnCd/SiZ49UVyHL+WUrBbXepALwwMsa2oHQ==
+
 "@web3-storage/multipart-parser@^1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@web3-storage/multipart-parser/-/multipart-parser-1.0.0.tgz"

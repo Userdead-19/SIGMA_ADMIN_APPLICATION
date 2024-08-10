@@ -88,7 +88,6 @@ export default function TabLayout() {
         type: "SET_TOTAL_ISSUES",
         payload: response.data.total_issues,
       });
-      console.log(state);
     } catch (error) {
       console.log(error);
     }

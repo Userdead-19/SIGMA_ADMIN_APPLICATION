@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -71,6 +72,19 @@ const LoginScreen = () => {
       const body = {
         id: decode?.sub,
       };
+      const validity = (decode?.exp ?? 0) * 1000 - Date.now();
+      console.log(validity);
+      if (validity <= 0) {
+        await AsyncStorage.removeItem("admin-token");
+        Alert.alert("Session expired", "Please login again", [
+          {
+            text: "OK",
+            onPress: () => {
+              return;
+            },
+          },
+        ]);
+      }
       const response = await axios.post(
         `https://api.gms.intellx.in/manager/account`,
         body
