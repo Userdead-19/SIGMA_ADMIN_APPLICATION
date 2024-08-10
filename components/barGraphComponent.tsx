@@ -1,5 +1,5 @@
 import React from "react";
-import { Dimensions, View } from "react-native";
+import { Dimensions, ScrollView, View, StyleSheet } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 
 const screenWidth = Dimensions.get("window").width;
@@ -49,26 +49,54 @@ const BarGraph = ({
   const chartHeight = screenHeight * 0.5;
 
   return (
-    <View
-      style={{
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 5,
-      }}
-    >
-      <BarChart
-        yAxisLabel=""
-        yAxisSuffix=""
-        data={chartData}
-        width={chartWidth}
-        height={chartHeight}
-        chartConfig={chartConfig}
-        verticalLabelRotation={labels.length > 5 ? 30 : 0} // Rotate labels if there are many
-        fromZero
-        yAxisInterval={yAxisInterval} // Apply the custom Y-axis interval
-      />
+    <View style={styles.container}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+        <View style={{ width: chartWidth }}>
+          <BarChart
+            yAxisLabel=""
+            yAxisSuffix=""
+            data={{
+              labels: chartData.labels,
+              datasets: [
+                {
+                  data: chartData.datasets[0].data,
+                },
+              ],
+            }}
+            width={chartWidth}
+            height={chartHeight}
+            chartConfig={chartConfig}
+            verticalLabelRotation={chartData.labels.length > 5 ? 60 : 0} // Rotate labels if there are many
+            fromZero
+            yAxisInterval={yAxisInterval} // Apply the custom Y-axis interval
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 40,
+    backgroundColor: "#F2F2F2",
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  selectBox: {
+    borderWidth: 0,
+    height: 50,
+    width: 200,
+    margin: 5,
+  },
+  dropdown: {
+    height: 200,
+    width: 200,
+    borderWidth: 0.5,
+    borderRadius: 5,
+    margin: 5,
+  },
+});
 
 export default BarGraph;

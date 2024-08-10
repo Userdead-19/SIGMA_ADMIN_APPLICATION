@@ -5,6 +5,7 @@ import axios from "axios";
 import PieChartExample from "@/components/pieChartComponent";
 import { useNavigation } from "expo-router";
 import { Appbar } from "react-native-paper";
+import BarGraphWithFilter from "@/components/barGraphComponentFilter";
 
 // Define the types for the data you are working with
 interface Issue {
@@ -111,7 +112,6 @@ const StatisticsPage: React.FC = () => {
 
       setLabels(Object.keys(categoryCount));
       setValues(Object.values(categoryCount));
-      console.log("Category", categoryCount);
     }
   }, [data]);
 
@@ -140,6 +140,10 @@ const StatisticsPage: React.FC = () => {
                 labels={["Open Issues", "Closed Issues"]}
                 values={[openIssues, closedIssues]}
               />
+            </View>
+            <View style={styles.chartContainer}>
+              <Text style={styles.chartTitle}>Month Categoriezed issues</Text>
+              <BarGraphWithFilter data={data} />
             </View>
           </ScrollView>
         )}
