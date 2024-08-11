@@ -8,8 +8,6 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { RouteProp } from "@react-navigation/native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
 import { Image } from "react-native";
 import { useUser } from "@/Hooks/UserContext";
@@ -17,6 +15,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import * as jwt from "jwt-decode";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 type State = {
   email: string;
@@ -61,29 +60,20 @@ const LoginScreen = () => {
   const [isEmailFocused, setEmailFocused] = useState(false);
   const [isPasswordFocused, setPasswordFocused] = useState(false);
   const [secureText, setSecureText] = useState(true);
+  const [loadingToken, setLoadingToken] = useState(true); // New loading state
   const navigation = useNavigation();
   const { updateUser } = useUser();
 
   const checkForToken = async () => {
+    setLoadingToken(true); // Start loading
     try {
       let token = await AsyncStorage.getItem("admin-token");
       const decode = token ? jwt.jwtDecode(token) : null;
-      console.log(decode);
-      const body = {
-        id: decode?.sub,
-      };
+      const body = { id: decode?.sub };
       const validity = (decode?.exp ?? 0) * 1000 - Date.now();
-      console.log(validity);
       if (validity <= 0) {
         await AsyncStorage.removeItem("admin-token");
-        Alert.alert("Session expired", "Please login again", [
-          {
-            text: "OK",
-            onPress: () => {
-              return;
-            },
-          },
-        ]);
+        Alert.alert("Session expired", "Please login again");
       }
       const response = await axios.post(
         `https://api.gms.intellx.in/manager/account`,
@@ -99,21 +89,20 @@ const LoginScreen = () => {
       }
     } catch (error) {
       console.log("No token found");
+    } finally {
+      setLoadingToken(false); // Stop loading
     }
   };
 
   useEffect(() => {
     checkForToken();
-    navigation.setOptions({
-      headerShown: false,
-    });
+    navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
   const handleLogin = async () => {
     dispatch({ type: "LOGIN_REQUEST" });
 
     try {
-      // Simulate API call
       let response = await axios.post(
         "https://api.gms.intellx.in/manager/login",
         {
@@ -121,10 +110,7 @@ const LoginScreen = () => {
           password: state.password,
         }
       );
-      console.log(response.data);
       await AsyncStorage.setItem("admin-token", response.data.token);
-      const token = await AsyncStorage.getItem("admin-token");
-      console.log(token);
       dispatch({ type: "LOGIN_SUCCESS", payload: response.data });
       updateUser({
         name: response.data.user.name,
@@ -153,73 +139,87 @@ const LoginScreen = () => {
           style={styles.logo}
         />
 
-        <View style={{ padding: 20 }}>
-          <Text style={styles.title}>Login</Text>
-          <Text style={styles.subtitle}>Please sign in to continue.</Text>
-        </View>
-        <View
-          style={[
-            styles.inputContainer,
-            isEmailFocused && styles.inputContainerFocused,
-          ]}
-        >
-          <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
-          <TextInput
-            style={styles.input}
-            placeholder="Register Number"
-            placeholderTextColor="#999"
-            value={state.email}
-            onFocus={() => setEmailFocused(true)}
-            onBlur={() => setEmailFocused(false)}
-            onChangeText={(text) =>
-              dispatch({ type: "SET_EMAIL", payload: text })
-            }
-          />
-        </View>
-        <View
-          style={[
-            styles.inputContainer,
-            isPasswordFocused && styles.inputContainerFocused,
-          ]}
-        >
-          <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#999"
-            secureTextEntry={secureText}
-            value={state.password}
-            onFocus={() => setPasswordFocused(true)}
-            onBlur={() => setPasswordFocused(false)}
-            onChangeText={(text) =>
-              dispatch({ type: "SET_PASSWORD", payload: text })
-            }
-          />
-          <TouchableOpacity onPress={() => setSecureText(!secureText)}>
-            <MaterialCommunityIcons
-              name={secureText ? "eye" : "eye-off"}
-              size={20}
-              color="#999"
-            />
-          </TouchableOpacity>
-        </View>
-        {state.loading ? (
+        {loadingToken ? (
           <ActivityIndicator size="large" color="#8283e9" />
         ) : (
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>LOGIN</Text>
-          </TouchableOpacity>
+          <>
+            <View style={{ padding: 20 }}>
+              <Text style={styles.title}>Login</Text>
+              <Text style={styles.subtitle}>Please sign in to continue.</Text>
+            </View>
+            <View
+              style={[
+                styles.inputContainer,
+                isEmailFocused && styles.inputContainerFocused,
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="email-outline"
+                size={20}
+                color="#999"
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Register Number"
+                placeholderTextColor="#999"
+                value={state.email}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+                onChangeText={(text) =>
+                  dispatch({ type: "SET_EMAIL", payload: text })
+                }
+              />
+            </View>
+            <View
+              style={[
+                styles.inputContainer,
+                isPasswordFocused && styles.inputContainerFocused,
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="lock-outline"
+                size={20}
+                color="#999"
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#999"
+                secureTextEntry={secureText}
+                value={state.password}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+                onChangeText={(text) =>
+                  dispatch({ type: "SET_PASSWORD", payload: text })
+                }
+              />
+              <TouchableOpacity onPress={() => setSecureText(!secureText)}>
+                <MaterialCommunityIcons
+                  name={secureText ? "eye" : "eye-off"}
+                  size={20}
+                  color="#999"
+                />
+              </TouchableOpacity>
+            </View>
+            {state.loading ? (
+              <ActivityIndicator size="large" color="#8283e9" />
+            ) : (
+              <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                <Text style={styles.buttonText}>LOGIN</Text>
+              </TouchableOpacity>
+            )}
+            {state.error && <Text style={styles.errorText}>{state.error}</Text>}
+            <TouchableOpacity
+              onPress={() => router.push("/(tabs)/Signup")}
+              style={{ position: "absolute", bottom: "4%" }}
+            >
+              <Text style={styles.signUpText}>
+                Don't have an account?{" "}
+                <Text style={styles.signUpLink}>Sign up</Text>
+              </Text>
+            </TouchableOpacity>
+          </>
         )}
-        {state.error && <Text style={styles.errorText}>{state.error}</Text>}
-        <TouchableOpacity
-          onPress={() => router.push("/(tabs)/Signup")}
-          style={{ position: "absolute", bottom: "4%" }}
-        >
-          <Text style={styles.signUpText}>
-            Don't have an account?{" "}
-            <Text style={styles.signUpLink}>Sign up</Text>
-          </Text>
-        </TouchableOpacity>
       </View>
     </KeyboardAwareScrollView>
   );

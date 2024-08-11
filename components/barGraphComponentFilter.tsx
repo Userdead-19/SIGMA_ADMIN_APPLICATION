@@ -86,19 +86,21 @@ const reducer = (state: any, action: any) => {
         labels: Object.keys(action.payload),
         chartData: Object.values(action.payload),
         chartLabels: Object.keys(action.payload),
+        monthCounts: action.payload, // Ensure monthCounts is stored in the state
       };
     case ACTIONS.SET_SELECTED_MONTH:
       if (action.payload === null) {
+        // Reset to show all data
         return {
           ...state,
           chartLabels: state.labels,
-          chartData: state.chartData,
+          chartData: Object.values(state.monthCounts),
         };
       }
       return {
         ...state,
         chartLabels: [action.payload],
-        chartData: [state.monthCounts[action.payload] || 0],
+        chartData: [state.monthCounts[action.payload] || 0], // Use the monthCounts from the state
       };
     default:
       return state;
@@ -153,7 +155,7 @@ const BarGraphWithFilter: React.FC<BarGraphWithFilterProps> = ({ data }) => {
         data={["All", ...state.labels]}
         search={false}
         setSelected={(value: string | null) =>
-          value === null ? handleSelectMonth(null) : handleSelectMonth(value)
+          value === "All" ? handleSelectMonth(null) : handleSelectMonth(value)
         }
         boxStyles={styles.selectBox}
         dropdownStyles={styles.dropdown}
