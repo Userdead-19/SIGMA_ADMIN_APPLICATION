@@ -69,12 +69,13 @@ const LoginScreen = () => {
     try {
       let token = await AsyncStorage.getItem("admin-token");
       const decode = token ? jwt.jwtDecode(token) : null;
-      const body = { id: decode?.sub };
       const validity = (decode?.exp ?? 0) * 1000 - Date.now();
       if (validity <= 0) {
         await AsyncStorage.removeItem("admin-token");
         Alert.alert("Session expired", "Please login again");
+        return; // Exit the function early if token is expired
       }
+      const body = { id: decode?.sub };
       const response = await axios.post(
         `https://api.gms.intellx.in/manager/account`,
         body
@@ -101,7 +102,6 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     dispatch({ type: "LOGIN_REQUEST" });
-
     try {
       let response = await axios.post(
         "https://api.gms.intellx.in/manager/login",
@@ -119,9 +119,17 @@ const LoginScreen = () => {
       });
       router.replace("/Home");
     } catch (error: any) {
+      let errorMessage = "Login failed. Please try again.";
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        errorMessage = error.response.data.message;
+      }
       dispatch({
         type: "LOGIN_FAILURE",
-        payload: "Login failed. Please try again.",
+        payload: errorMessage,
       });
       console.log(error.response);
     }

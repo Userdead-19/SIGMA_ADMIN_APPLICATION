@@ -4463,9 +4463,9 @@ expo-modules-core@1.12.19:
     invariant "^2.2.4"
 
 expo-router@~3.5.18:
-  version "3.5.18"
-  resolved "https://registry.npmjs.org/expo-router/-/expo-router-3.5.18.tgz"
-  integrity sha512-Pd76q9c5wcHU/dbsX2xhBaiJP0LRpB044RLLX3t3DR0MB3gjk+N9Fi7aC+ffyTiJ5uDDgpXdPe8ALL14/GgxbA==
+  version "3.5.21"
+  resolved "https://registry.npmjs.org/expo-router/-/expo-router-3.5.21.tgz"
+  integrity sha512-0rqt1ViwZ+a+obODGX1e7krRlRwhxwTHdMdhfpWU9rCLm9B4sr5k77LBAd8V7MRS7FGGZBA93CgYxKfpO/arng==
   dependencies:
     "@expo/metro-runtime" "3.2.1"
     "@expo/server" "^0.4.0"
@@ -4477,7 +4477,7 @@ expo-router@~3.5.18:
     react-native-helmet-async "2.0.4"
     schema-utils "^4.0.1"
 
-expo-splash-screen@~0.27.5, expo-splash-screen@0.27.5:
+expo-splash-screen@^0.27.5, expo-splash-screen@0.27.5:
   version "0.27.5"
   resolved "https://registry.npmjs.org/expo-splash-screen/-/expo-splash-screen-0.27.5.tgz"
   integrity sha512-9rdZuLkFCfgJBxrheUsOEOIW6Rp+9NVlpSE0hgXQwbTCLTncf00IHSE8/L2NbFyeDLNjof1yZBppaV7tXHRUzA==
@@ -7530,7 +7530,7 @@ react-devtools-core@^5.0.0:
     shell-quote "^1.6.1"
     ws "^7"
 
-react-dom@^18.0.0, react-dom@18.2.0:
+react-dom@^18.0.0, react-dom@^18.2.0:
   version "18.2.0"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-18.2.0.tgz"
   integrity sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==

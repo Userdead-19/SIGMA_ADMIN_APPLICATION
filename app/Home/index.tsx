@@ -155,7 +155,7 @@ export default function TabLayout() {
                     {
                       text: "Yes",
                       onPress: () => {
-                        AsyncStorage.removeItem("token");
+                        AsyncStorage.removeItem("admin-token");
                         router.replace("/(tabs)");
                       },
                     },
