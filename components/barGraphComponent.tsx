@@ -46,32 +46,28 @@ const BarGraph = ({
   };
 
   const chartWidth = screenWidth * 0.9;
-  const chartHeight = screenHeight * 0.5;
+  const chartHeight = screenHeight * 0.6;
 
   return (
     <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-        <View style={{ width: chartWidth }}>
-          <BarChart
-            yAxisLabel=""
-            yAxisSuffix=""
-            data={{
-              labels: chartData.labels,
-              datasets: [
-                {
-                  data: chartData.datasets[0].data,
-                },
-              ],
-            }}
-            width={chartWidth}
-            height={chartHeight}
-            chartConfig={chartConfig}
-            verticalLabelRotation={chartData.labels.length > 5 ? 60 : 0} // Rotate labels if there are many
-            fromZero
-            yAxisInterval={yAxisInterval} // Apply the custom Y-axis interval
-          />
-        </View>
-      </ScrollView>
+      <BarChart
+        yAxisLabel=""
+        yAxisSuffix=""
+        data={{
+          labels: chartData.labels,
+          datasets: [
+            {
+              data: chartData.datasets[0].data,
+            },
+          ],
+        }}
+        width={chartWidth}
+        height={chartHeight}
+        chartConfig={chartConfig}
+        verticalLabelRotation={chartData.labels.length > 5 ? 60 : 0} // Rotate labels if there are many
+        fromZero
+        yAxisInterval={yAxisInterval} // Apply the custom Y-axis interval
+      />
     </View>
   );
 };
