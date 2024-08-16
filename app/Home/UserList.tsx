@@ -16,6 +16,7 @@ import {
   Provider as PaperProvider,
   Searchbar,
   Button,
+  Appbar,
 } from "react-native-paper";
 import UserCard from "@/components/UserCard";
 import axios from "axios";
@@ -122,22 +123,15 @@ export default function Tab() {
 
   return (
     <PaperProvider>
+       <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title="Sigma - GMS " />
+      </Appbar.Header>
       <View style={styles.container}>
-        <SafeAreaView style={{ paddingHorizontal: width * 0.025 }}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={() => {
-                navigation.goBack();
-              }}
-            >
-              <AntDesign name="left" size={15} color="#555555" />
-            </TouchableOpacity>
-            <Text style={styles.headingText}>User Details</Text>
-          </View>
+        <SafeAreaView style={{ paddingHorizontal: width * 0.035 }}>
           <View style={styles.searchSortContainer}>
             <Searchbar
-              placeholder="Search"
+              placeholder="Search User"
               onChangeText={onChangeSearch}
               value={searchQuery}
               style={styles.searchBar}
@@ -145,11 +139,12 @@ export default function Tab() {
             <Button
               mode="contained"
               onPress={onSortUsers}
-              style={[styles.sortButton, tw`bg-blue-500`]}
+              style={[styles.sortButton, tw`bg-blue-400`]}
             >
               <Text
                 style={{
                   color: "white",
+                  fontWeight: "regular",
                 }}
               >
                 Sort
@@ -184,48 +179,24 @@ export default function Tab() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 40,
     flex: 1,
     backgroundColor: "#F2F2F2",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: "4%",
-    marginTop: "-10%",
-  },
-  iconContainer: {
-    width: "8%",
-    height: "120%",
-    borderRadius: 20,
-    backgroundColor: "white",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "absolute",
-    left: width * 0.05,
-    zIndex: 1,
-    top: "-10%",
-  },
-  headingText: {
-    fontSize: 19,
-    fontWeight: "bold",
-    color: "#555555",
-    textAlign: "center",
-    flex: 1,
+    marginBottom  : 30,
   },
   searchSortContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
+    marginBottom  : 50,
+    height : 40,
   },
   searchBar: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 5,
     backgroundColor: "white",
+    fontSize: 2,
   },
   sortButton: {
-    height: 50,
+    height: 40,
     justifyContent: "center",
   },
   fab: {

@@ -121,7 +121,7 @@ export default function TabLayout() {
           >
             <View
               style={[
-                tw`bg-white rounded-full flex flex-row items-center`,
+                tw`bg-white rounded-full flex flex-row items-center justify-between`,
                 {
                   height: height * 0.07,
                   width: width * 0.74,
@@ -129,15 +129,16 @@ export default function TabLayout() {
                 },
               ]}
             >
-              <UserIcon size={29} color={"blue"} />
+              <UserIcon size={26} color={"blue"} />
               <Text
                 style={[
-                  tw`text-black ml-3 text-md`,
-                  { fontSize: width * 0.044 },
+                  tw`text-black  font-regular  uppercase`,
+                  { fontSize: width * 0.040 },
                 ]}
               >
                 {user?.name}
               </Text>
+              
             </View>
             <View style={tw`flex flex-row gap-1`}>
               <TouchableOpacity
@@ -162,50 +163,30 @@ export default function TabLayout() {
                   ]);
                 }}
               >
-                <PowerIcon size={29} color={"blue"} />
+                <PowerIcon size={22} color={"blue"} />
               </TouchableOpacity>
             </View>
           </View>
-          <Text style={[tw`mt-2 ml-2`, { fontSize: width * 0.09 }]}>
-            Hello Admin !
-          </Text>
-          <View
-            style={[
-              tw`flex w-full rounded-l-full rounded-r-full bg-white py-5 flex-row justify-between`,
-              { height: height * 0.09, marginTop: height * 0.01 },
-            ]}
-          >
-            <Text style={[tw`ml-6`, { fontSize: width * 0.044 }]}>
-              Admin ID
-            </Text>
-            <View style={tw`flex flex-row space-x-1 items-center ml-4 mr-4`}>
-              <Text style={[tw`text-lg`, { fontSize: width * 0.044 }]}>
-                #{user?.id}
-              </Text>
-              <TouchableOpacity>
-                <ChevronRightIcon size={19} />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={tw`px-3 mt-4 mb-1 flex-row justify-between`}>
+          <View style={tw`px-3 mt-2 mb-2 flex-row justify-between`}>
             <View
               style={[
-                tw`bg-white p-4 rounded-lg items-center justify-center`,
+                tw`bg-white p-4 rounded-3xl items-center justify-center`,
                 { width: width * 0.28, height: height * 0.12 },
               ]}
             >
               <Text
                 style={[
                   tw`text-center`,
-                  { fontSize: width * 0.045, fontWeight: "600", color: "#333" },
+                  { fontSize: width * 0.035, fontWeight: "300", color: "#333" },
                 ]}
               >
-                Total Issues
+                Total 
+                Issues
               </Text>
               <Text
                 style={[
                   tw`mt-2 text-center`,
-                  { fontSize: width * 0.065, fontWeight: "700", color: "#000" },
+                  { fontSize: width * 0.065, fontWeight: "500", color: "#000" },
                 ]}
               >
                 {state.totalIssues}
@@ -213,14 +194,14 @@ export default function TabLayout() {
             </View>
             <View
               style={[
-                tw`bg-white p-4 rounded-lg items-center justify-center`,
+                tw`bg-white p-4 rounded-3xl items-center justify-center`,
                 { width: width * 0.28, height: height * 0.12 },
               ]}
             >
               <Text
                 style={[
                   tw`text-center`,
-                  { fontSize: width * 0.045, fontWeight: "600", color: "#333" },
+                  { fontSize: width * 0.035, fontWeight: "300", color: "#333" },
                 ]}
               >
                 Solved Issues
@@ -228,7 +209,7 @@ export default function TabLayout() {
               <Text
                 style={[
                   tw`mt-2 text-center`,
-                  { fontSize: width * 0.065, fontWeight: "700", color: "#000" },
+                  { fontSize: width * 0.065, fontWeight: "500", color: "#000" },
                 ]}
               >
                 {state.issuesResolved}
@@ -236,14 +217,14 @@ export default function TabLayout() {
             </View>
             <View
               style={[
-                tw`bg-white p-4 rounded-lg items-center justify-center`,
+                tw`bg-white p-4 rounded-3xl items-center justify-center`,
                 { width: width * 0.28, height: height * 0.12 },
               ]}
             >
               <Text
                 style={[
                   tw`text-center`,
-                  { fontSize: width * 0.045, fontWeight: "600", color: "#333" },
+                  { fontSize: width * 0.035, fontWeight: "300", color: "#333" },
                 ]}
               >
                 Pending Issues
@@ -251,7 +232,7 @@ export default function TabLayout() {
               <Text
                 style={[
                   tw`mt-2 text-center`,
-                  { fontSize: width * 0.065, fontWeight: "700", color: "#000" },
+                  { fontSize: width * 0.065, fontWeight: "500", color: "#000" },
                 ]}
               >
                 {state.TodoList}
@@ -270,13 +251,13 @@ export default function TabLayout() {
                   router.push("/Home/UserList");
                 }}
               >
-                <View style={tw`flex flex-row justify-between mt-4`}>
+                <View style={tw`flex flex-row justify-between mt-4 ml-4`}>
                   <UsersIcon size={34} color={"blue"} />
                 </View>
                 <Text
                   style={[
-                    tw`mt-13 ml-3 font-semi-bold`,
-                    { fontSize: width * 0.044 },
+                    tw`mt-18 ml-3 font-semi-bold`,
+                    { fontSize: width * 0.040 },
                   ]}
                 >
                   Users Console
@@ -291,13 +272,13 @@ export default function TabLayout() {
                   router.push("/Home/AdminConsole");
                 }}
               >
-                <View style={tw`mt-4 ml-4`}>
+                <View style={tw`mt-4 ml-4 `}>
                   <CubeTransparentIcon size={34} color={"blue"} />
                 </View>
                 <Text
                   style={[
-                    tw`mt-9 ml-6 font-semi-bold`,
-                    { fontSize: width * 0.044 },
+                    tw`mt-18 ml-3 font-semi-bold`,
+                    { fontSize: width * 0.039 },
                   ]}
                 >
                   Admin Console
@@ -307,7 +288,7 @@ export default function TabLayout() {
             <View style={tw`flex flex-row`}>
               <View
                 style={[
-                  tw`rounded-[50px] mt-2 bg-[#3872F7] flex flex-col`,
+                  tw`rounded-[50px] mt-2 bg-[#3872F7] flex flex-col justify-between`,
                   { width: "59%", height: height * 0.35 },
                 ]}
               >
@@ -336,14 +317,14 @@ export default function TabLayout() {
                     <Text style={tw`text-white`}>{state.TodoList}</Text>
                   </View>
                 </View>
-                <View style={tw`px-4 mt-4`}>
+                <View style={tw`px-4`}>
                   <Text
                     style={[
-                      tw`text-white`,
+                      tw`text-white mb-10`,
                       {
                         fontVariant: ["stylistic-nineteen"],
                         fontSize: 19,
-                        fontWeight: "800",
+                        fontWeight: "400",
                       },
                     ]}
                   >
@@ -351,7 +332,7 @@ export default function TabLayout() {
                   </Text>
                 </View>
               </View>
-              <View style={[tw`flex flex-col w-full ml-1 mt-1 `, { gap: 4 }]}>
+              <View style={[tw`flex flex-col w-full ml-1 mt-3 `, { gap: 4 }]}>
                 <TouchableOpacity
                   style={[
                     tw`bg-white rounded-[50px] ml-1`,
@@ -361,13 +342,13 @@ export default function TabLayout() {
                     router.push("/Home/Issues");
                   }}
                 >
-                  <View style={tw`mt-4 ml-4`}>
+                  <View style={tw`mt-5 ml-4`}>
                     <RectangleStackIcon size={34} color={"blue"} />
                   </View>
                   <Text
                     style={[
-                      tw`mt-9 ml-6 font-semi-bold`,
-                      { fontSize: width * 0.044 },
+                      tw`mt-15 ml-6 font-semi-bold`,
+                      { fontSize: width * 0.040 },
                     ]}
                   >
                     Issues
@@ -375,20 +356,20 @@ export default function TabLayout() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
-                    tw`bg-white rounded-[50px] ml-1`,
+                    tw`bg-white rounded-[50px] ml-1 mt-1`,
                     { width: "37%", height: height * 0.17 },
                   ]}
                   onPress={() => {
                     router.push("/Home/StatisticsPage");
                   }}
                 >
-                  <View style={tw`mt-4 ml-4`}>
+                  <View style={tw`mt-5 ml-5`}>
                     <ChartBarIcon size={34} color={"blue"} />
                   </View>
                   <Text
                     style={[
-                      tw`mt-9 ml-6 font-semi-bold`,
-                      { fontSize: width * 0.044 },
+                      tw`mt-15 ml-6 font-semi-bold`,
+                      { fontSize: width * 0.040 },
                     ]}
                   >
                     Statistics
