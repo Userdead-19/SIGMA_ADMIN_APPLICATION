@@ -109,10 +109,10 @@ export default function TabLayout() {
 
   return (
     <View
-      style={[tw`flex-1 bg-[#F2F2F2]`, { marginTop: height * 0.01, gap: 2 }]}
+      style={[tw`flex-1 bg-[#F2F2F2] `, { marginTop: height * 0.01, gap: 2 }]}
     >
-      <SafeAreaView style={{ paddingHorizontal: width * 0.02 }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+      <SafeAreaView style={{ paddingHorizontal: width * 0.02}}>
+        <View  style={{maxHeight : "auto", gap : "25"}}>
           <View
             style={[
               tw`flex flex-row justify-between`,
@@ -285,7 +285,7 @@ export default function TabLayout() {
                 </Text>
               </TouchableOpacity>
             </View>
-            <View style={tw`flex flex-row`}>
+            <View style={tw`flex flex-row mt-2`}>
               <View
                 style={[
                   tw`rounded-[50px] mt-2 bg-[#3872F7] flex flex-col justify-between`,
@@ -378,7 +378,7 @@ export default function TabLayout() {
               </View>
             </View>
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </View>
   );

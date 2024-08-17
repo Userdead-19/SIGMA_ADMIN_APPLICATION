@@ -82,7 +82,7 @@ const SignUpScreen = () => {
       if (response.status === 201) {
         Alert.alert(
           "Success",
-          "Please Check your email for verificatio and login"
+          "Please Check your email for verification and login"
         );
         router.back(); // Navigate back to the previous screen
       } else {
