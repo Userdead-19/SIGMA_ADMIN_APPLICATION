@@ -36,7 +36,7 @@ const UserCard = ({
   const toggleExpand = () => {
     Animated.timing(animation, {
       toValue: expanded ? 0 : 1,
-      duration: 300,
+      duration: 200,
       useNativeDriver: false,
     }).start();
     setExpanded(!expanded);
@@ -68,15 +68,15 @@ const UserCard = ({
   return (
     <View style={styles.card}>
       <View style={styles.row}>
-        <UserCircleIcon size={60} color="blue" />
+        <UserCircleIcon size={40} color="grey" />
         <View style={styles.textContainer}>
-          <Text style={styles.userDetail}>Name: {user.name}</Text>
-          <Text style={styles.userDetail}>ID: {user.id}</Text>
+          <Text style={styles.userDetail}>Name : {user.name}</Text>
+          <Text style={styles.userDetail}>Roll No : {user.id}</Text>
         </View>
       </View>
 
       <TouchableOpacity style={styles.arrowButton} onPress={toggleExpand}>
-        <AntDesign name={expanded ? "up" : "down"} size={20} color="#555555" />
+        <AntDesign name={expanded ? "up" : "down"} size={12} color="#555555" />
       </TouchableOpacity>
 
       <Animated.View style={{ overflow: "hidden", height: heightInterpolate }}>
@@ -121,11 +121,13 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flexDirection: "column",
+    marginTop : 3,
+    marginLeft: 15,
     flex: 1,
     flexShrink: 1,
   },
   userDetail: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#555",
     marginBottom: 5,
     flexShrink: 1,
