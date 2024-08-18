@@ -1,6 +1,6 @@
 import React, { useReducer, useEffect } from "react";
 import { View, StyleSheet, Dimensions, ScrollView, Text } from "react-native";
-import { LineChart } from "react-native-chart-kit";
+import { LineChart } from "react-native-gifted-charts";
 
 // Define the types for the data structure
 interface Comment {
@@ -55,21 +55,6 @@ interface BarGraphWithFilterProps {
   data: Task[];
 }
 
-// Chart Configuration
-const chartConfig = {
-  backgroundGradientFrom: "#F2F2F2",
-  backgroundGradientTo: "#F2F2F2",
-  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  barPercentage: 0.3,
-  useShadowColorFromDataset: false,
-  propsForBackgroundLines: {
-    strokeWidth: 1,
-    stroke: "#ECECEC",
-  },
-  fillShadowGradient: "#3872F7",
-  fillShadowGradientOpacity: 1,
-};
-
 // Define action types
 const ACTIONS = {
   SET_DATA: "SET_DATA",
@@ -79,8 +64,8 @@ const ACTIONS = {
 // Define state type
 interface State {
   labels: string[];
-  openIssues: number[];
-  closedIssues: number[];
+  openIssues: { value: number }[];
+  closedIssues: { value: number }[];
   originalChartData: any; // Adjust this type as needed
   chartData: any; // Adjust this type as needed
   chartColors: {
@@ -96,18 +81,20 @@ const reducer = (state: State, action: any): State => {
       return {
         ...state,
         labels: action.payload.labels,
-        openIssues: action.payload.openIssues,
-        closedIssues: action.payload.closedIssues,
+        openIssues: action.payload.openIssues.map((value: any) => ({ value })),
+        closedIssues: action.payload.closedIssues.map((value: any) => ({
+          value,
+        })),
         originalChartData: {
           labels: action.payload.labels,
           datasets: [
             {
-              data: action.payload.openIssues,
-              color: () => state.chartColors.openIssuesColor, // Color for open issues
+              data: action.payload.openIssues.map((value: any) => ({ value })),
             },
             {
-              data: action.payload.closedIssues,
-              color: () => state.chartColors.closedIssuesColor, // Color for closed issues
+              data: action.payload.closedIssues.map((value: any) => ({
+                value,
+              })),
             },
           ],
         },
@@ -115,12 +102,12 @@ const reducer = (state: State, action: any): State => {
           labels: action.payload.labels,
           datasets: [
             {
-              data: action.payload.openIssues,
-              color: () => state.chartColors.openIssuesColor, // Color for open issues
+              data: action.payload.openIssues.map((value: any) => ({ value })),
             },
             {
-              data: action.payload.closedIssues,
-              color: () => state.chartColors.closedIssuesColor, // Color for closed issues
+              data: action.payload.closedIssues.map((value: any) => ({
+                value,
+              })),
             },
           ],
         },
@@ -141,13 +128,11 @@ const reducer = (state: State, action: any): State => {
               data: state.originalChartData.datasets[0].data.filter(
                 (_: any, index: any) => state.labels[index] === action.payload
               ),
-              color: () => state.chartColors.openIssuesColor, // Color for open issues
             },
             {
               data: state.originalChartData.datasets[1].data.filter(
                 (_: any, index: any) => state.labels[index] === action.payload
               ),
-              color: () => state.chartColors.closedIssuesColor, // Color for closed issues
             },
           ],
         },
@@ -182,19 +167,10 @@ const preprocessData = (data: Task[]) => {
   const openIssues = labels.map((label) => monthCounts[label].open);
   const closedIssues = labels.map((label) => monthCounts[label].closed);
 
-  // Sort the arrays based on labels
-  const sortedIndices = labels
-    .map((label, index) => index)
-    .sort((a, b) => labels[a].localeCompare(labels[b]));
-
-  const sortedLabels = sortedIndices.map((i) => labels[i]);
-  const sortedOpenIssues = sortedIndices.map((i) => openIssues[i]);
-  const sortedClosedIssues = sortedIndices.map((i) => closedIssues[i]);
-
   return {
-    labels: sortedLabels,
-    openIssues: sortedOpenIssues,
-    closedIssues: sortedClosedIssues,
+    labels: labels,
+    openIssues: openIssues,
+    closedIssues: closedIssues,
   };
 };
 
@@ -230,14 +206,22 @@ const BarGraphWithFilter: React.FC<BarGraphWithFilterProps> = ({ data }) => {
         <ScrollView horizontal showsHorizontalScrollIndicator={true}>
           <View style={{ width: chartWidth }}>
             <LineChart
-              yAxisLabel=""
-              yAxisSuffix=""
-              data={state.chartData}
-              width={chartWidth}
+              data={state.openIssues}
+              data2={state.closedIssues}
               height={chartHeight}
-              chartConfig={chartConfig}
-              verticalLabelRotation={0}
-              fromZero
+              spacing={44}
+              initialSpacing={0}
+              color1={state.chartColors.openIssuesColor}
+              color2={state.chartColors.closedIssuesColor}
+              textColor1="black"
+              textColor2="black"
+              dataPointsColor1={state.chartColors.openIssuesColor}
+              dataPointsColor2={state.chartColors.closedIssuesColor}
+              textShiftY={-2}
+              textShiftX={-5}
+              textFontSize={13}
+              width={chartWidth}
+              showVerticalLines
             />
             <View style={styles.legend}>
               <View
