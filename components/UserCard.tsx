@@ -15,11 +15,11 @@ import axios from "axios";
 const { width } = Dimensions.get("window");
 
 interface User {
+  status: string;
   name: string;
   _id: string;
   id: string;
   hashword: string;
-  confirmed: boolean;
   confkey: string;
 }
 
@@ -82,10 +82,11 @@ const UserCard = ({
       <Animated.View style={{ overflow: "hidden", height: heightInterpolate }}>
         <Text
           style={{
-            color: user.confirmed ? "green" : "red",
+            color: user.status === "CONFIRMED" ? "green" : "red",
           }}
         >
-          Account Status : {user.confirmed ? "Confirmed" : "Pending"}
+          Account Status :{" "}
+          {user.status === "CONFIRMED" ? "Confirmed" : "Pending"}
         </Text>
         <TouchableOpacity
           style={styles.deleteButton}
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flexDirection: "column",
-    marginTop : 3,
+    marginTop: 3,
     marginLeft: 15,
     flex: 1,
     flexShrink: 1,

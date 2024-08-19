@@ -68,21 +68,19 @@ const LoginScreen = () => {
     setLoadingToken(true); // Start loading
     try {
       let token = await AsyncStorage.getItem("admin-token");
+      console.log(token);
       const decode = token ? jwt.jwtDecode(token) : null;
       const validity = (decode?.exp ?? 0) * 1000 - Date.now();
+      console.log(validity);
       if (validity <= 0) {
         await AsyncStorage.removeItem("admin-token");
         Alert.alert("Session expired", "Please login again");
         return; // Exit the function early if token is expired
       }
-      const body = { id: decode?.sub };
-      const response = await axios.post(
-        `https://api.gms.intellx.in/manager/account`,
-        body
-      );
+      console.log(decode);
       updateUser({
-        name: response.data.user.name,
-        id: response.data.user.id,
+        name: (decode?.sub as unknown as { name: string })?.name,
+        id: (decode?.sub as unknown as { id: string })?.id,
         confirmed: true,
       });
       if (token) {
@@ -90,6 +88,7 @@ const LoginScreen = () => {
       }
     } catch (error) {
       console.log("No token found");
+      console.log(error);
     } finally {
       setLoadingToken(false); // Stop loading
     }
@@ -110,8 +109,11 @@ const LoginScreen = () => {
           password: state.password,
         }
       );
+      console.log(response.data);
       await AsyncStorage.setItem("admin-token", response.data.token);
       dispatch({ type: "LOGIN_SUCCESS", payload: response.data });
+      const token = await AsyncStorage.getItem("admin-token");
+      console.log(token);
       updateUser({
         name: response.data.user.name,
         id: response.data.user.id,

@@ -111,8 +111,8 @@ export default function TabLayout() {
     <View
       style={[tw`flex-1 bg-[#F2F2F2] `, { marginTop: height * 0.01, gap: 2 }]}
     >
-      <SafeAreaView style={{ paddingHorizontal: width * 0.02}}>
-        <View  style={{maxHeight : "auto", gap : "25"}}>
+      <SafeAreaView style={{ paddingHorizontal: width * 0.02 }}>
+        <View style={{ maxHeight: "auto", gap: 25 }}>
           <View
             style={[
               tw`flex flex-row justify-between`,
@@ -133,12 +133,11 @@ export default function TabLayout() {
               <Text
                 style={[
                   tw`text-black  font-regular  uppercase`,
-                  { fontSize: width * 0.040 },
+                  { fontSize: width * 0.04 },
                 ]}
               >
                 {user?.name}
               </Text>
-              
             </View>
             <View style={tw`flex flex-row gap-1`}>
               <TouchableOpacity
@@ -180,8 +179,7 @@ export default function TabLayout() {
                   { fontSize: width * 0.035, fontWeight: "300", color: "#333" },
                 ]}
               >
-                Total 
-                Issues
+                Total Issues
               </Text>
               <Text
                 style={[
@@ -257,7 +255,7 @@ export default function TabLayout() {
                 <Text
                   style={[
                     tw`mt-18 ml-3 font-semi-bold`,
-                    { fontSize: width * 0.040 },
+                    { fontSize: width * 0.04 },
                   ]}
                 >
                   Users Console
@@ -348,7 +346,7 @@ export default function TabLayout() {
                   <Text
                     style={[
                       tw`mt-15 ml-6 font-semi-bold`,
-                      { fontSize: width * 0.040 },
+                      { fontSize: width * 0.04 },
                     ]}
                   >
                     Issues
@@ -369,7 +367,7 @@ export default function TabLayout() {
                   <Text
                     style={[
                       tw`mt-15 ml-6 font-semi-bold`,
-                      { fontSize: width * 0.040 },
+                      { fontSize: width * 0.04 },
                     ]}
                   >
                     Statistics
