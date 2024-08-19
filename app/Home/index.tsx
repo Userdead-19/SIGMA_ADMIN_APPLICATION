@@ -6,6 +6,7 @@ import {
   View,
   Dimensions,
   Alert,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -18,6 +19,7 @@ import {
   PowerIcon,
   ChartBarIcon,
   UserIcon,
+  ArrowLeftStartOnRectangleIcon,
 } from "react-native-heroicons/outline";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
@@ -111,8 +113,20 @@ export default function TabLayout() {
     <View
       style={[tw`flex-1 bg-[#F2F2F2] `, { marginTop: height * 0.01, gap: 2 }]}
     >
-      <SafeAreaView style={{ paddingHorizontal: width * 0.02 }}>
-        <View style={{ maxHeight: "auto", gap: 25 }}>
+      <SafeAreaView
+        style={{
+          paddingHorizontal: width * 0.02,
+          alignContent: "center",
+          justifyContent: "center",
+        }}
+      >
+        <View
+          style={{
+            maxHeight: "auto",
+            gap: Platform.OS === "android" ? 10 : 25,
+            justifyContent: Platform.OS === "android" ? "center" : "flex-start",
+          }}
+        >
           <View
             style={[
               tw`flex flex-row justify-between`,
@@ -162,7 +176,7 @@ export default function TabLayout() {
                   ]);
                 }}
               >
-                <PowerIcon size={22} color={"blue"} />
+                <ArrowLeftStartOnRectangleIcon size={22} color={"blue"} />
               </TouchableOpacity>
             </View>
           </View>
@@ -252,14 +266,25 @@ export default function TabLayout() {
                 <View style={tw`flex flex-row justify-between mt-4 ml-4`}>
                   <UsersIcon size={34} color={"blue"} />
                 </View>
-                <Text
-                  style={[
-                    tw`mt-18 ml-3 font-semi-bold`,
-                    { fontSize: width * 0.04 },
-                  ]}
-                >
-                  Users Console
-                </Text>
+                {Platform.OS === "android" ? (
+                  <Text
+                    style={[
+                      tw`mt-12 ml-3 font-semi-bold`,
+                      { fontSize: width * 0.04 },
+                    ]}
+                  >
+                    Users Console
+                  </Text>
+                ) : (
+                  <Text
+                    style={[
+                      tw`mt-18 ml-3 font-semi-bold`,
+                      { fontSize: width * 0.04 },
+                    ]}
+                  >
+                    Users Console
+                  </Text>
+                )}
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
@@ -273,14 +298,25 @@ export default function TabLayout() {
                 <View style={tw`mt-4 ml-4 `}>
                   <CubeTransparentIcon size={34} color={"blue"} />
                 </View>
-                <Text
-                  style={[
-                    tw`mt-18 ml-3 font-semi-bold`,
-                    { fontSize: width * 0.039 },
-                  ]}
-                >
-                  Admin Console
-                </Text>
+                {Platform.OS === "android" ? (
+                  <Text
+                    style={[
+                      tw`mt-12 ml-3 font-semi-bold`,
+                      { fontSize: width * 0.039 },
+                    ]}
+                  >
+                    Admin Console
+                  </Text>
+                ) : (
+                  <Text
+                    style={[
+                      tw`mt-18 ml-3 font-semi-bold`,
+                      { fontSize: width * 0.039 },
+                    ]}
+                  >
+                    Admin Console
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
             <View style={tw`flex flex-row mt-2`}>
@@ -343,14 +379,25 @@ export default function TabLayout() {
                   <View style={tw`mt-5 ml-4`}>
                     <RectangleStackIcon size={34} color={"blue"} />
                   </View>
-                  <Text
-                    style={[
-                      tw`mt-15 ml-6 font-semi-bold`,
-                      { fontSize: width * 0.04 },
-                    ]}
-                  >
-                    Issues
-                  </Text>
+                  {Platform.OS === "android" ? (
+                    <Text
+                      style={[
+                        tw`mt-10 ml-6 font-semi-bold`,
+                        { fontSize: width * 0.04 },
+                      ]}
+                    >
+                      Issues
+                    </Text>
+                  ) : (
+                    <Text
+                      style={[
+                        tw`mt-15 ml-6 font-semi-bold`,
+                        { fontSize: width * 0.04 },
+                      ]}
+                    >
+                      Issues
+                    </Text>
+                  )}
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
@@ -364,17 +411,48 @@ export default function TabLayout() {
                   <View style={tw`mt-5 ml-5`}>
                     <ChartBarIcon size={34} color={"blue"} />
                   </View>
-                  <Text
-                    style={[
-                      tw`mt-15 ml-6 font-semi-bold`,
-                      { fontSize: width * 0.04 },
-                    ]}
-                  >
-                    Statistics
-                  </Text>
+                  {Platform.OS === "android" ? (
+                    <Text
+                      style={[
+                        tw`mt-10 ml-6 font-semi-bold`,
+                        { fontSize: width * 0.04 },
+                      ]}
+                    >
+                      Statistics
+                    </Text>
+                  ) : (
+                    <Text
+                      style={[
+                        tw`mt-15 ml-6 font-semi-bold`,
+                        { fontSize: width * 0.04 },
+                      ]}
+                    >
+                      Statistics
+                    </Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
+          </View>
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: "#333",
+                  fontWeight: "400",
+                  marginTop: 20,
+                  textDecorationLine: "underline",
+                }}
+              >
+                powered by team
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </SafeAreaView>
