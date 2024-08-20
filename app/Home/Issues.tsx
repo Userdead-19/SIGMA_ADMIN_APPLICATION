@@ -1,4 +1,10 @@
-import React, { useReducer, useRef, useEffect, useCallback } from "react";
+import React, {
+  useReducer,
+  useRef,
+  useEffect,
+  useCallback,
+  useState,
+} from "react";
 import {
   View,
   Text,
@@ -8,9 +14,8 @@ import {
   FlatList,
 } from "react-native";
 import Card from "@/components/Card";
-import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useNavigation } from "expo-router";
 
 interface Issue {
   _id: { $oid: string };
@@ -39,12 +44,14 @@ interface Issue {
 const SET_ISSUES = "SET_ISSUES";
 const SET_FILTERED_ISSUES = "SET_FILTERED_ISSUES";
 const SET_CURRENT_STAGE = "SET_CURRENT_STAGE";
+const SET_VIEW_MODE = "SET_VIEW_MODE";
 
 // Define initial state
 const initialState = {
   currentStage: "Current",
   issues: [] as Issue[],
   filteredIssues: [] as Issue[],
+  viewMode: "Tile", // New state for view mode
 };
 
 // Define reducer function
@@ -66,6 +73,11 @@ const reducer = (state: typeof initialState, action: any) => {
         ...state,
         currentStage: action.payload,
         filteredIssues: filterIssues(state.issues, action.payload),
+      };
+    case SET_VIEW_MODE:
+      return {
+        ...state,
+        viewMode: action.payload,
       };
     default:
       return state;
@@ -122,10 +134,35 @@ const IssuePage = () => {
     }).start();
   };
 
+  const handleViewToggle = () => {
+    dispatch({
+      type: SET_VIEW_MODE,
+      payload: state.viewMode === "Tile" ? "Table" : "Tile",
+    });
+  };
+
+  const handleItemPress = (issue: Issue) => {
+    router.push({
+      pathname: "/IssueDetails",
+      params: {
+        issue: JSON.stringify(issue),
+      },
+    });
+  };
+
   const slideInterpolation = slideAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ["0%", "50%"],
   });
+
+  // Table Header Component
+  const TableHeader = () => (
+    <View style={styles.tableHeader}>
+      <Text style={styles.tableHeaderCell}>Issue No</Text>
+      <Text style={styles.tableHeaderCell}>Content</Text>
+      <Text style={styles.tableHeaderCell}>Status</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -160,9 +197,38 @@ const IssuePage = () => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Toggle Button for View Mode */}
+      <View style={styles.toggleContainer}>
+        <TouchableOpacity onPress={handleViewToggle}>
+          <Text style={styles.toggleText}>
+            {state.viewMode === "Tile"
+              ? "Switch to Table View"
+              : "Switch to Tile View"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Render Table Headers only in Table View */}
+      {state.viewMode === "Table" && <TableHeader />}
+
       <FlatList
         data={state.filteredIssues}
-        renderItem={({ item }) => <Card issue={item} />}
+        renderItem={({ item }) =>
+          state.viewMode === "Tile" ? (
+            <TouchableOpacity onPress={() => handleItemPress(item)}>
+              <Card issue={item} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => handleItemPress(item)}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCell}>{item.issueNo}</Text>
+                <Text style={styles.tableCell}>{item.issue.issueContent}</Text>
+                <Text style={styles.tableCell}>{item.status}</Text>
+              </View>
+            </TouchableOpacity>
+          )
+        }
         keyExtractor={(item) => item.issueNo}
         contentContainerStyle={styles.listContainer}
       />
@@ -199,14 +265,48 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "50%",
     height: "100%",
-    backgroundColor: "#347aeb", // Change the color as needed
+    backgroundColor: "#347aeb",
     borderRadius: 25,
   },
   selectedText: {
     color: "#fff",
   },
+  toggleContainer: {
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  toggleText: {
+    fontSize: 18,
+    color: "#347aeb",
+  },
   listContainer: {
     padding: 16,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#ddd",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  tableHeaderCell: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+  },
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  tableCell: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+    textAlign: "center",
   },
 });
 
