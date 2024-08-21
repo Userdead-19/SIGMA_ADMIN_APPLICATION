@@ -64,8 +64,8 @@ const ACTIONS = {
 // Define state type
 interface State {
   labels: string[];
-  openIssues: { value: number }[];
-  closedIssues: { value: number }[];
+  openIssues: { value: number; label: string; dataPointText: string }[];
+  closedIssues: { value: number; label: string; dataPointText: string }[];
   originalChartData: any; // Adjust this type as needed
   chartData: any; // Adjust this type as needed
   chartColors: {
@@ -81,34 +81,20 @@ const reducer = (state: State, action: any): State => {
       return {
         ...state,
         labels: action.payload.labels,
-        openIssues: action.payload.openIssues.map((value: any) => ({ value })),
-        closedIssues: action.payload.closedIssues.map((value: any) => ({
-          value,
-        })),
+        openIssues: action.payload.openIssues,
+        closedIssues: action.payload.closedIssues,
         originalChartData: {
           labels: action.payload.labels,
           datasets: [
-            {
-              data: action.payload.openIssues.map((value: any) => ({ value })),
-            },
-            {
-              data: action.payload.closedIssues.map((value: any) => ({
-                value,
-              })),
-            },
+            { data: action.payload.openIssues },
+            { data: action.payload.closedIssues },
           ],
         },
         chartData: {
           labels: action.payload.labels,
           datasets: [
-            {
-              data: action.payload.openIssues.map((value: any) => ({ value })),
-            },
-            {
-              data: action.payload.closedIssues.map((value: any) => ({
-                value,
-              })),
-            },
+            { data: action.payload.openIssues },
+            { data: action.payload.closedIssues },
           ],
         },
       };
@@ -164,13 +150,21 @@ const preprocessData = (data: Task[]) => {
 
   // Create arrays from monthCounts object
   const labels = Object.keys(monthCounts);
-  const openIssues = labels.map((label) => monthCounts[label].open);
-  const closedIssues = labels.map((label) => monthCounts[label].closed);
+  const openIssues = labels.map((label) => ({
+    value: monthCounts[label].open,
+    label,
+    dataPointText: `${monthCounts[label].open}`,
+  }));
+  const closedIssues = labels.map((label) => ({
+    value: monthCounts[label].closed,
+    label,
+    dataPointText: `${monthCounts[label].closed}`,
+  }));
 
   return {
-    labels: labels,
-    openIssues: openIssues,
-    closedIssues: closedIssues,
+    labels,
+    openIssues,
+    closedIssues,
   };
 };
 

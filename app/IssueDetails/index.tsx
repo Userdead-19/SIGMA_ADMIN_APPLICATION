@@ -13,7 +13,7 @@ import {
 import { router, useGlobalSearchParams, useNavigation } from "expo-router";
 import { AntDesign, Feather, SimpleLineIcons } from "@expo/vector-icons";
 import axios from "axios";
-import { UserProvider, useUser } from "@/Hooks/UserContext";
+import { useUser } from "@/Hooks/UserContext";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Appbar } from "react-native-paper";
 
@@ -76,7 +76,6 @@ export default function IssueDetails() {
         setNewComment("");
       }
     } catch (error) {
-      // Check if error is an Axios error
       if (axios.isAxiosError(error)) {
         console.error("Axios Error:", error.response?.data || error.message);
         Alert.alert("Failed to add comment", `Error: ${error.message}`);
@@ -107,7 +106,6 @@ export default function IssueDetails() {
         navigation.goBack();
       }
     } catch (error) {
-      // Check if error is an Axios error
       if (axios.isAxiosError(error)) {
         console.error("Axios Error:", error.response?.data || error.message);
         Alert.alert("Failed to reopen issue", `Error: ${error.message}`);
@@ -117,7 +115,8 @@ export default function IssueDetails() {
       }
     }
   };
-  const CloseISsue = async () => {
+
+  const CloseIssue = async () => {
     try {
       const body = {
         user_id: user.id,
@@ -131,7 +130,6 @@ export default function IssueDetails() {
         navigation.goBack();
       }
     } catch (error) {
-      // Check if error is an Axios error
       if (axios.isAxiosError(error)) {
         console.error("Axios Error:", error.response?.data || error.message);
         Alert.alert("Failed to close issue", `Error: ${error.message}`);
@@ -168,7 +166,7 @@ export default function IssueDetails() {
               </Text>
             </View>
             <View>
-              {issue?.status == "CLOSE" ? (
+              {issue?.status === "CLOSE" ? (
                 <Feather name="check-circle" size={27} color="green" />
               ) : (
                 <SimpleLineIcons name="close" size={27} color="red" />
@@ -201,29 +199,30 @@ export default function IssueDetails() {
           </View>
           <View style={{ marginTop: 20, gap: 10 }}>
             <Text style={styles.detailsText}>
-              Floor : {issue?.issue.floor}{" "}
+              Raised By: {issue?.raised_by.name}{" "}
+            </Text>
+            <Text style={styles.detailsText}>Floor: {issue?.issue.floor} </Text>
+            <Text style={styles.detailsText}>
+              Block: {issue?.issue.block} block{" "}
             </Text>
             <Text style={styles.detailsText}>
-              Block : {issue?.issue.block} block{" "}
+              Type: {issue?.issue.issueType}
             </Text>
             <Text style={styles.detailsText}>
-              Type : {issue?.issue.issueType}
+              Content: {issue?.issue.issueContent}
             </Text>
             <Text style={styles.detailsText}>
-              Content : {issue?.issue.issueContent}
-            </Text>
-            <Text style={styles.detailsText}>
-              Action Item : {issue?.issue.actionItem}
+              Action Item: {issue?.issue.actionItem}
             </Text>
           </View>
           {issue?.status === "OPEN" ? (
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => {
-                CloseISsue();
+                CloseIssue();
               }}
             >
-              <Text style={styles.closeButtonText}>REVERT THIS ISSUE</Text>
+              <Text style={styles.closeButtonText}>CLOSE THIS ISSUE</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -245,6 +244,18 @@ export default function IssueDetails() {
                 <Text style={styles.commentContent}>{comment.content}</Text>
               </View>
             ))}
+
+          <View style={styles.logsContainer}>
+            <Text style={styles.logsHeading}>LOGS</Text>
+            {issue?.log.map((log, index) => (
+              <View key={index} style={styles.logBox}>
+                <Text style={styles.logDate}>{log.date}</Text>
+                <Text style={styles.logAction}>{log.action}</Text>
+                <Text style={styles.logBy}>By: {log.by}</Text>
+              </View>
+            ))}
+          </View>
+
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.textInput}
@@ -278,82 +289,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.05,
     backgroundColor: "#FFFFFF",
     minHeight: height,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginVertical: 20,
-    position: "relative",
-  },
-  iconContainer: {
-    position: "absolute",
-    left: 0,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#E6F0FF",
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 5,
-    // shadowColor: "#000000",
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.23,
-    // shadowRadius: 2.62,
-  },
-  headingText: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#003366",
-    textAlign: "center",
-  },
-  detailsContainer: {
-    // borderWidth: 1,
-    // borderColor: "#DDE6F0",
-    // borderRadius: 10,
-    padding: 20,
-    backgroundColor: "#FFFFFF",
-    // shadowColor: "#000",
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.23,
-    // shadowRadius: 2.62,
-    // elevation: 4,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  box: {
-    width: "48%",
-    borderWidth: 1,
-    borderColor: "#DDE6F0",
-    borderRadius: 10,
-    padding: 10,
-    backgroundColor: "#E6F0FF",
-    alignItems: "center",
-  },
-  label: {
-    fontSize: 16,
-    color: "#666666",
-    marginBottom: 5,
-  },
-  value: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#003366",
-  },
-  detailsBox: {
-    borderWidth: 1,
-    borderColor: "#DDE6F0",
-    borderRadius: 10,
-    padding: 20,
-    backgroundColor: "#E6F0FF",
-    marginBottom: 20,
-  },
-  detailsText: {
-    fontSize: 14,
-    marginBottom: 5,
   },
   closeButton: {
     borderWidth: 1,
@@ -415,5 +350,37 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "#DDE6F0",
+  },
+  logsContainer: {
+    marginTop: 20,
+  },
+  logsHeading: {
+    fontSize: 15,
+    fontWeight: "700",
+    marginVertical: 10,
+  },
+  logBox: {
+    borderWidth: 1,
+    borderColor: "#DDE6F0",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#FFFFFF",
+    marginVertical: 10,
+  },
+  logDate: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  logAction: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  logBy: {
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+  detailsText: {
+    fontSize: 14,
+    marginBottom: 5,
   },
 });

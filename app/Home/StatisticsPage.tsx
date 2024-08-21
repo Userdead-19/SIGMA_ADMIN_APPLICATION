@@ -1,13 +1,11 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import BarGraph from "@/components/barGraphComponent"; // Assuming you have a BarGraph component
 import axios from "axios";
-import PieChartExample from "@/components/pieChartComponent";
 import { useNavigation } from "expo-router";
 import { Appbar } from "react-native-paper";
 import BarGraphWithFilter from "@/components/barGraphComponentFilter";
 
-// Define the types for the data you are working with
 interface Issue {
   issueLastUpdateTime: string;
   issueLastUpdateDate: string;
@@ -63,7 +61,10 @@ const StatisticsPage: React.FC = () => {
   const [values, setValues] = useState<number[]>([]);
   const [openIssues, setOpenIssues] = useState<number>(0);
   const [closedIssues, setClosedIssues] = useState<number>(0);
+  const [workEfficiency, setWorkEfficiency] = useState<number | null>(null);
   const navigation = useNavigation();
+
+  // Fetch data for issues
   const fetchData = async () => {
     try {
       const response = await axios.get("https://api.gms.intellx.in/tasks");
@@ -75,6 +76,7 @@ const StatisticsPage: React.FC = () => {
     }
   };
 
+  // Fetch data for total and closed issues
   const fetchData2 = async () => {
     try {
       const response1 = await axios.get(
@@ -90,6 +92,22 @@ const StatisticsPage: React.FC = () => {
     }
   };
 
+  // Calculate Work Efficiency based on the formula
+  const calculateWorkEfficiency = (
+    closedComplaint: number,
+    totComplaint: number,
+    closedSuggestion: number,
+    totSuggestion: number
+  ) => {
+    if (totComplaint > 0 && totSuggestion > 0) {
+      const complaintEfficiency = (closedComplaint / totComplaint) * 100;
+      const suggestionEfficiency = (closedSuggestion / totSuggestion) * 100;
+      const efficiency = 0.6 * complaintEfficiency + 0.4 * suggestionEfficiency;
+      setWorkEfficiency(efficiency);
+    }
+  };
+
+  // UseEffect to fetch data and calculate work efficiency
   useEffect(() => {
     fetchData();
     fetchData2();
@@ -101,6 +119,11 @@ const StatisticsPage: React.FC = () => {
   useEffect(() => {
     if (data.length > 0) {
       const categoryCount: Record<string, number> = {};
+      let closedComplaint = 0;
+      let totComplaint = 0;
+      let closedSuggestion = 0;
+      let totSuggestion = 0;
+
       data.forEach((item) => {
         const category = item.issue.issueCat;
         if (categoryCount[category]) {
@@ -108,10 +131,35 @@ const StatisticsPage: React.FC = () => {
         } else {
           categoryCount[category] = 1;
         }
+
+        if (item.status === "CLOSE" && item.issue.issueType === "ISSUE") {
+          closedComplaint++;
+        }
+        if (item.issue.issueType === "ISSUE") {
+          totComplaint++;
+        }
+        if (item.status === "CLOSE" && item.issue.issueType === "FEEDBACK") {
+          closedSuggestion++;
+        }
+        if (item.issue.issueType === "FEEDBACK") {
+          totSuggestion++;
+        }
       });
 
       setLabels(Object.keys(categoryCount));
       setValues(Object.values(categoryCount));
+      console.log(
+        closedComplaint,
+        totComplaint,
+        closedSuggestion,
+        totSuggestion
+      );
+      calculateWorkEfficiency(
+        closedComplaint,
+        totComplaint,
+        closedSuggestion,
+        totSuggestion
+      );
     }
   }, [data]);
 
@@ -130,6 +178,12 @@ const StatisticsPage: React.FC = () => {
             showsVerticalScrollIndicator={false}
             alwaysBounceVertical
           >
+            <View style={styles.workEfficiencyContainer}>
+              <Text style={styles.workEfficiencyText}>
+                Work Efficiency:{" "}
+                {workEfficiency ? `${workEfficiency.toFixed(2)}%` : "N/A"}
+              </Text>
+            </View>
             <View style={styles.chartContainer}>
               <Text style={styles.chartTitle}>Issue Categories</Text>
               <BarGraph labels={labels} values={values} />
@@ -142,7 +196,7 @@ const StatisticsPage: React.FC = () => {
               />
             </View>
             <View style={styles.chartContainer}>
-              <Text style={styles.chartTitle}>Month Categoriezed issues</Text>
+              <Text style={styles.chartTitle}>Month Categorized Issues</Text>
               <BarGraphWithFilter data={data} />
             </View>
           </ScrollView>
@@ -180,5 +234,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 20,
+  },
+  workEfficiencyContainer: {
+    marginBottom: 20,
+    width: "100%",
+    alignItems: "center",
+  },
+  workEfficiencyText: {
+    fontSize: 20,
+    fontWeight: "bold",
   },
 });

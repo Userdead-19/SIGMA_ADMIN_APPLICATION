@@ -39,7 +39,9 @@ interface Issue {
 
 const Card = ({ issue }: { issue: Issue }) => (
   <View style={tw`bg-white rounded-2xl p-4 mb-4 shadow gap-5`}>
-    <Text style={tw`text-md font-bold mb-2 uppercase`}>{issue.issue.issueContent}</Text>
+    <Text style={tw` font-bold mb-2 uppercase`}>
+      {issue.issue.issueContent}
+    </Text>
     <View style={tw`flex-row items-center mb-2 gap-10`}>
       <View style={tw`flex flex-col`}>
         <Text style={tw`text-xs text-gray-600 mr-4`}>BLOCK</Text>
