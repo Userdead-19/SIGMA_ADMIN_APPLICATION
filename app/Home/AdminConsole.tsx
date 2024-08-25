@@ -55,7 +55,7 @@ export default function Tab() {
               >
                 <AntDesign name="left" size={15} color="#555555" />
               </TouchableOpacity>
-              <Text style={styles.headingText}>User Details</Text>
+              <Text style={styles.headingText}>Admin Console</Text>
             </View>
             {user.length > 0 ? (
               user.map((u, i) => (

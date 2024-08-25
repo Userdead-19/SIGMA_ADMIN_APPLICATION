@@ -68,26 +68,28 @@ const LoginScreen = () => {
     setLoadingToken(true); // Start loading
     try {
       let token = await AsyncStorage.getItem("admin-token");
-      console.log(token);
-      const decode = token ? jwt.jwtDecode(token) : null;
-      const validity = (decode?.exp ?? 0) * 1000 - Date.now();
-      console.log(validity);
-      if (validity <= 0) {
-        await AsyncStorage.removeItem("admin-token");
-        Alert.alert("Session expired", "Please login again");
-        return; // Exit the function early if token is expired
-      }
-      console.log(decode);
-      updateUser({
-        name: (decode?.sub as unknown as { name: string })?.name,
-        id: (decode?.sub as unknown as { id: string })?.id,
-        confirmed: true,
-      });
       if (token) {
-        router.replace("/Home");
+        const decode = jwt.jwtDecode(token);
+        const validity = (decode?.exp ?? 0) * 1000 - Date.now();
+
+        if (validity > 0) {
+          // Token is valid
+          updateUser({
+            name: (decode?.sub as unknown as { name: string })?.name,
+            id: (decode?.sub as unknown as { id: string })?.id,
+            confirmed: true,
+          });
+          router.replace("/Home");
+        } else {
+          await AsyncStorage.removeItem("admin-token");
+          Alert.alert("Session expired", "Please login again");
+        }
+      } else {
+        // No token found
+        console.log("No token found");
       }
     } catch (error) {
-      console.log("No token found");
+      console.log("Error during token check");
       console.log(error);
     } finally {
       setLoadingToken(false); // Stop loading
@@ -157,6 +159,18 @@ const LoginScreen = () => {
               <Text style={styles.title}>Login</Text>
               <Text style={styles.subtitle}>Please sign in to continue.</Text>
             </View>
+            <Text
+              style={{
+                margin: 10, // Change the margin value to a valid dimension value, e.g. 10
+                fontSize: 12,
+                color: "#999",
+                textAlign: "left",
+                width: "100%",
+              }}
+            >
+              Enter your College id,"99x901",or for staff , it is the e-mail
+              prefix nmae - like "xyyz.eee"
+            </Text>
             <View
               style={[
                 styles.inputContainer,
@@ -164,7 +178,7 @@ const LoginScreen = () => {
               ]}
             >
               <MaterialCommunityIcons
-                name="email-outline"
+                name="account-outline"
                 size={20}
                 color="#999"
               />
@@ -180,6 +194,18 @@ const LoginScreen = () => {
                 }
               />
             </View>
+            <Text
+              style={{
+                margin: 10, // Change the margin value to a valid dimension value, e.g. 10
+                fontSize: 12,
+                color: "#999",
+                textAlign: "left",
+                width: "100%",
+              }}
+            >
+              Enter your password. If you forgot your password,click "Forgot
+              Password"
+            </Text>
             <View
               style={[
                 styles.inputContainer,
@@ -239,7 +265,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    gap: 15,
+    gap: 5,
     alignItems: "center",
     padding: 20,
     backgroundColor: "#fff",
@@ -266,6 +292,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
     padding: "2%",
+    backgroundColor: "#fff",
   },
   inputContainer: {
     flexDirection: "row",
@@ -274,7 +301,7 @@ const styles = StyleSheet.create({
     borderColor: "#dddddd",
     borderBottomWidth: 2,
     borderRadius: 8,
-    marginBottom: 15,
+    marginBottom: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },

@@ -44,8 +44,8 @@ const SignUpScreen = () => {
   const [state, dispatch] = useReducer(reducer, {
     fullName: "",
     id: "",
-    password: "",
-    confirmPassword: "",
+    password: "password",
+    confirmPassword: "password",
   });
 
   const [loading, setLoading] = useState(false);
@@ -55,10 +55,6 @@ const SignUpScreen = () => {
     const { fullName, id, password, confirmPassword } = state;
     if (!fullName || !id || !password || !confirmPassword) {
       Alert.alert("Error", "All fields are required.");
-      return false;
-    }
-    if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match.");
       return false;
     }
     // Add more validation logic if needed (e.g., email format, password strength)
@@ -114,7 +110,7 @@ const SignUpScreen = () => {
         <MaterialCommunityIcons name="account-outline" size={20} color="#999" />
         <TextInput
           style={styles.input}
-          placeholder="Full Name"
+          placeholder="Full name"
           placeholderTextColor="#999"
           value={state.fullName}
           onChangeText={(text) =>
@@ -122,11 +118,12 @@ const SignUpScreen = () => {
           }
         />
       </View>
+      <Text>Enter full name as per College ID Card</Text>
       <View style={styles.inputContainer}>
-        <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
+        <MaterialCommunityIcons name="account-outline" size={20} color="#999" />
         <TextInput
           style={styles.input}
-          placeholder="College ID"
+          placeholder="Employee ID"
           placeholderTextColor="#999"
           value={state.id}
           onChangeText={(text) =>
@@ -134,32 +131,17 @@ const SignUpScreen = () => {
           }
         />
       </View>
+      <Text>Enter Employee ID</Text>
       <View style={styles.inputContainer}>
         <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
         <TextInput
           style={styles.input}
           placeholder="Password"
           placeholderTextColor="#999"
-          secureTextEntry
           value={state.password}
-          onChangeText={(text) =>
-            dispatch({ type: "SET_PASSWORD", payload: text })
-          }
         />
       </View>
-      <View style={styles.inputContainer}>
-        <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={state.confirmPassword}
-          onChangeText={(text) =>
-            dispatch({ type: "SET_CONFIRM_PASSWORD", payload: text })
-          }
-        />
-      </View>
+      <Text>Default password is "Password" from new accounts.</Text>
       <TouchableOpacity
         style={styles.button}
         onPress={CreateNewUser}

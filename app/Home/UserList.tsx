@@ -1,27 +1,24 @@
-import React, { useEffect, useReducer, useState, useRef } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   FlatList,
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Dimensions,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import {
+  Appbar,
+  Button,
   FAB,
   Provider as PaperProvider,
   Searchbar,
-  Button,
-  Appbar,
 } from "react-native-paper";
 import UserCard from "@/components/UserCard";
 import axios from "axios";
 import tw from "twrnc";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -46,6 +43,7 @@ const reducer = (state: any, action: any) => {
         user: [...state.user, ...action.payload],
         filteredUser: [...state.user, ...action.payload],
         page: state.page + 1,
+        hasMore: false,
       };
     case "SET_FILTERED_USER":
       return { ...state, filteredUser: action.payload };
@@ -61,16 +59,16 @@ const reducer = (state: any, action: any) => {
 export default function Tab() {
   const navigation = useNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortAsc, setSortAsc] = useState(true);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sortAsc, setSortAsc] = useState<boolean>(true);
 
   const fetchAllUsers = async () => {
-    if (!state.hasMore) return;
+    if (!state.hasMore || state.loading) return;
 
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const response = await axios.get(
-        `https://api.gms.intellx.in/administrator/all-users?page=${state.page}`
+        `https://api.gms.intellx.in/administrator/all-users?page=${state.page}&limit=10` // Adjust query params as needed
       );
       const users = response.data.users;
 
@@ -81,12 +79,13 @@ export default function Tab() {
       }
     } catch (error) {
       console.log(error);
+      // Optionally handle error here
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
-  const onChangeSearch = (query: any) => {
+  const onChangeSearch = (query: string) => {
     setSearchQuery(query);
     const filteredUsers = state.user.filter((user: any) =>
       user.name.toLowerCase().includes(query.toLowerCase())
@@ -96,11 +95,9 @@ export default function Tab() {
 
   const onSortUsers = () => {
     const sortedUsers = [...state.filteredUser].sort((a, b) => {
-      if (sortAsc) {
-        return a.name.localeCompare(b.name);
-      } else {
-        return b.name.localeCompare(a.name);
-      }
+      return sortAsc
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
     });
     dispatch({ type: "SET_FILTERED_USER", payload: sortedUsers });
     setSortAsc(!sortAsc);
@@ -121,11 +118,17 @@ export default function Tab() {
     return <ActivityIndicator size="large" color="#0000ff" animating={true} />;
   };
 
+  const handleLoadMore = () => {
+    if (!state.loading && state.hasMore) {
+      fetchAllUsers();
+    }
+  };
+
   return (
     <PaperProvider>
-       <Appbar.Header>
+      <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Sigma - GMS " />
+        <Appbar.Content title="Sigma - GMS" />
       </Appbar.Header>
       <View style={styles.container}>
         <SafeAreaView style={{ paddingHorizontal: width * 0.035 }}>
@@ -141,14 +144,7 @@ export default function Tab() {
               onPress={onSortUsers}
               style={[styles.sortButton, tw`bg-blue-400`]}
             >
-              <Text
-                style={{
-                  color: "white",
-                  fontWeight: "regular",
-                }}
-              >
-                Sort
-              </Text>
+              <Text style={styles.sortButtonText}>Sort</Text>
             </Button>
           </View>
 
@@ -157,8 +153,8 @@ export default function Tab() {
             renderItem={({ item }) => (
               <UserCard user={item} reloadFunction={fetchAllUsers} />
             )}
-            keyExtractor={(item, index) => `${item.id}-${index}`}
-            onEndReached={fetchAllUsers}
+            keyExtractor={(item) => item.id.toString()}
+            onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListFooterComponent={renderFooter}
             showsVerticalScrollIndicator={false}
@@ -181,23 +177,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F2F2F2",
-    marginBottom  : 30,
+    marginBottom: 30,
   },
   searchSortContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom  : 50,
-    height : 40,
+    marginBottom: 20, // Adjusted margin
+    height: 40,
   },
   searchBar: {
     flex: 1,
     marginRight: 5,
     backgroundColor: "white",
-    fontSize: 2,
+    fontSize: 16, // Adjusted font size
   },
   sortButton: {
     height: 40,
     justifyContent: "center",
+  },
+  sortButtonText: {
+    color: "white",
+    fontWeight: "500", // Adjusted font weight
   },
   fab: {
     position: "absolute",

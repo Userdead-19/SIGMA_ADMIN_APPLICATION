@@ -21,7 +21,7 @@ import {
   UserIcon,
   ArrowLeftStartOnRectangleIcon,
 } from "react-native-heroicons/outline";
-import { useNavigation } from "@react-navigation/native";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import tw from "twrnc";
 import { useUser } from "@/Hooks/UserContext";
@@ -170,7 +170,12 @@ export default function TabLayout() {
                       text: "Yes",
                       onPress: () => {
                         AsyncStorage.removeItem("admin-token");
-                        router.replace("/(tabs)");
+                        navigation.dispatch(
+                          CommonActions.reset({
+                            index: 0,
+                            routes: [{ name: "/(tabs)" }],
+                          })
+                        );
                       },
                     },
                   ]);

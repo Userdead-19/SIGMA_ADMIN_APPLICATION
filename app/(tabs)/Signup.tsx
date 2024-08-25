@@ -102,95 +102,131 @@ const SignUpScreen = () => {
       enableOnAndroid={true}
       extraHeight={100}
     >
-    <View style={styles.container}>
-      <Image
-        source={require("../../assets/images/sigmalogo.png")}
-        style={styles.logo}
-      />
+      <View style={styles.container}>
+        <Image
+          source={require("../../assets/images/sigmalogo.png")}
+          style={styles.logo}
+        />
 
-      <View
-        style={{
-          padding: 5,
-          width: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Text style={styles.title}>Create Account</Text>
-      </View>
-      <View style={styles.inputContainer}>
-        <MaterialCommunityIcons name="account-outline" size={20} color="#999" />
-        <TextInput
-          style={styles.input}
-          placeholder="Full Name"
-          placeholderTextColor="#999"
-          value={state.fullName}
-          onChangeText={(text) =>
-            dispatch({ type: "SET_FULL_NAME", payload: text })
-          }
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
-        <TextInput
-          style={styles.input}
-          placeholder="Register Number"
-          placeholderTextColor="#999"
-          value={state.id}
-          onChangeText={(text) =>
-            dispatch({ type: "SET_EMAIL", payload: text })
-          }
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={state.password}
-          onChangeText={(text) =>
-            dispatch({ type: "SET_PASSWORD", payload: text })
-          }
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={state.confirmPassword}
-          onChangeText={(text) =>
-            dispatch({ type: "SET_CONFIRM_PASSWORD", payload: text })
-          }
-        />
-      </View>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={CreateNewUser}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "SIGNING UP..." : "SIGN UP"}
+        <View
+          style={{
+            padding: 5,
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Text style={styles.title}>Create Account</Text>
+        </View>
+        <Text
+          style={{
+            fontSize: 12,
+            color: "#999",
+            textAlign: "left",
+            width: "100%",
+          }}
+        >
+          Enter full name as per College ID
         </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => router.back()}
-        style={{
-          position: "absolute",
-          bottom: 0,
-          marginBottom: "4%",
-        }}
-      >
-        <Text style={styles.signUpText}>
-          Already have an account?
-          <Text style={styles.signUpLink}> Sign in</Text>
+        <View style={styles.inputContainer}>
+          <MaterialCommunityIcons
+            name="account-outline"
+            size={20}
+            color="#999"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Full Name"
+            placeholderTextColor="#999"
+            value={state.fullName}
+            onChangeText={(text) =>
+              dispatch({ type: "SET_FULL_NAME", payload: text })
+            }
+          />
+        </View>
+        <Text
+          style={{
+            fontSize: 12,
+            color: "#999",
+            textAlign: "left",
+            width: "100%",
+          }}
+        >
+          Enter your College id,"99x901",or for staff , it is the e-mail prefix
+          nmae - like "xyyz.eee"
         </Text>
-      </TouchableOpacity>
-    </View>
+        <View style={styles.inputContainer}>
+          <MaterialCommunityIcons name="email-outline" size={20} color="#999" />
+          <TextInput
+            style={styles.input}
+            placeholder="Register Number"
+            placeholderTextColor="#999"
+            value={state.id}
+            onChangeText={(text) =>
+              dispatch({ type: "SET_EMAIL", payload: text })
+            }
+          />
+        </View>
+        <Text
+          style={{
+            fontSize: 12,
+            color: "#999",
+            textAlign: "left",
+            width: "100%",
+          }}
+        >
+          Enter a Strong Password you will always remember, it is suggested to
+          be a combination of capital letters,small letters ,numbers
+        </Text>
+        <View style={styles.inputContainer}>
+          <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry
+            value={state.password}
+            onChangeText={(text) =>
+              dispatch({ type: "SET_PASSWORD", payload: text })
+            }
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <MaterialCommunityIcons name="lock-outline" size={20} color="#999" />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            placeholderTextColor="#999"
+            secureTextEntry
+            value={state.confirmPassword}
+            onChangeText={(text) =>
+              dispatch({ type: "SET_CONFIRM_PASSWORD", payload: text })
+            }
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={CreateNewUser}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? "SIGNING UP..." : "SIGN UP"}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            marginBottom: "4%",
+          }}
+        >
+          <Text style={styles.signUpText}>
+            Already have an account?
+            <Text style={styles.signUpLink}> Sign in</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAwareScrollView>
   );
 };
@@ -198,14 +234,15 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
-    padding: "2%",
+    padding: "3%",
+    backgroundColor: "#fff",
   },
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    gap: 15,
+    gap: 5,
     backgroundColor: "#fff",
   },
   title: {
