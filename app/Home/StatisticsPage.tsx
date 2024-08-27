@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import BarGraph from "@/components/barGraphComponent";
+import { PieChart } from "react-native-chart-kit";
 import axios from "axios";
 import { useNavigation } from "expo-router";
 import { Appbar } from "react-native-paper";
 import BarGraphWithFilter from "@/components/barGraphComponentFilter";
+import BarGraph from "@/components/barGraphComponent";
 
 interface Issue {
   issueLastUpdateTime: string;
@@ -71,8 +72,15 @@ const StatisticsPage: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("https://api.gms.intellx.in/tasks");
-      setData(response.data.issues);
+      const [taskResponse, closedResponse, openResponse] = await Promise.all([
+        axios.get("https://api.gms.intellx.in/tasks"),
+        axios.get("https://api.gms.intellx.in/client/issues/total/closed"),
+        axios.get("https://api.gms.intellx.in/client/issues/total/open"),
+      ]);
+
+      setData(taskResponse.data.issues);
+      setClosedIssues(closedResponse.data.closed_issues);
+      setOpenIssues(openResponse.data.open_issues);
     } catch (error) {
       console.error(error);
     } finally {
@@ -80,45 +88,30 @@ const StatisticsPage: React.FC = () => {
     }
   };
 
-  const fetchData2 = async () => {
-    try {
-      const [response1, response2] = await Promise.all([
-        axios.get("https://api.gms.intellx.in/client/issues/total/closed"),
-        axios.get("https://api.gms.intellx.in/client/issues/total/open"),
-      ]);
-      setOpenIssues(response2.data.open_issues);
-      setClosedIssues(response1.data.closed_issues);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const parseDate = useCallback((dateStr: string) => {
+    const parts = dateStr.split("/");
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const year =
+      parts[2].length === 2
+        ? parseInt(parts[2], 10) + 2000
+        : parseInt(parts[2], 10);
 
-  const filterIssuesByDateRange = (days: number) => {
-    const today = new Date();
+    return new Date(year, month, day);
+  }, []);
 
-    // Function to parse DD/MM/YYYY format to a Date object
-    const parseDate = (dateStr: string) => {
-      // Assuming the date format in your data is "DD/MM/YY" or "DD/MM/YYYY"
-      const parts = dateStr.split("/");
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1; // JavaScript months are zero-based
-      const year =
-        parts[2].length === 2
-          ? parseInt(parts[2], 10) + 2000 // Handle 2-digit year by assuming 2000s
-          : parseInt(parts[2], 10); // Handle 4-digit year
+  const filterIssuesByDateRange = useCallback(
+    (days: number) => {
+      const today = new Date();
 
-      return new Date(year, month, day);
-    };
-
-    const filteredIssues = data.filter((item) => {
-      const issueDate = parseDate(item.date);
-
-      const timeDiff = today.getTime() - issueDate.getTime();
-      return timeDiff <= days * 24 * 60 * 60 * 1000;
-    });
-
-    return filteredIssues;
-  };
+      return data.filter((item) => {
+        const issueDate = parseDate(item.date);
+        const timeDiff = today.getTime() - issueDate.getTime();
+        return timeDiff <= days * 24 * 60 * 60 * 1000;
+      });
+    },
+    [data, parseDate]
+  );
 
   const calculateWorkEfficiency = (
     closedComplaint: number,
@@ -136,7 +129,6 @@ const StatisticsPage: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-    fetchData2();
     navigation.setOptions({
       headerShown: false,
     });
@@ -154,11 +146,7 @@ const StatisticsPage: React.FC = () => {
         const category = item.issue.issueCat;
 
         // Counting categories
-        if (categoryCount[category]) {
-          categoryCount[category]++;
-        } else {
-          categoryCount[category] = 1;
-        }
+        categoryCount[category] = (categoryCount[category] || 0) + 1;
 
         // Counting based on issue type and status
         if (item.status === "CLOSE" && item.issue.issueType === "ISSUE") {
@@ -204,7 +192,7 @@ const StatisticsPage: React.FC = () => {
         totSuggestion
       );
     }
-  }, [data]);
+  }, [data, filterIssuesByDateRange]);
 
   return (
     <>
@@ -232,28 +220,72 @@ const StatisticsPage: React.FC = () => {
               <BarGraph labels={labels} values={values} />
             </View>
             <View style={styles.chartContainer}>
-              <Text style={styles.chartTitle}>Issue Status</Text>
-              <BarGraph
-                labels={["Open Issues", "Closed Issues"]}
-                values={[openIssues, closedIssues]}
-              />
-            </View>
-            <View style={styles.chartContainer}>
               <Text style={styles.chartTitle}>Past 365 Days Issues</Text>
-              <BarGraph
-                labels={["Open Issues", "Closed Issues"]}
-                values={[past365DaysData.open, past365DaysData.closed]}
+              <PieChart
+                data={[
+                  {
+                    name: `Open Issues (${past365DaysData.open})`,
+                    population: past365DaysData.open,
+                    color: "#000000", // Black
+                    legendFontColor: "#7F7F7F",
+                    legendFontSize: 15,
+                  },
+                  {
+                    name: `Closed Issues (${past365DaysData.closed})`,
+                    population: past365DaysData.closed,
+                    color: "#ADD8E6", // Light Blue
+                    legendFontColor: "#7F7F7F",
+                    legendFontSize: 15,
+                  },
+                ]}
+                width={300}
+                height={220}
+                chartConfig={{
+                  backgroundGradientFrom: "#fff",
+                  backgroundGradientTo: "#fff",
+                  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  strokeWidth: 2,
+                }}
+                accessor="population"
+                backgroundColor="transparent"
+                paddingLeft="15"
+                center={[10, 50]}
               />
             </View>
             <View style={styles.chartContainer}>
               <Text style={styles.chartTitle}>Past 30 Days Issues</Text>
-              <BarGraph
-                labels={["Open Issues", "Closed Issues"]}
-                values={[past30DaysData.open, past30DaysData.closed]}
+              <PieChart
+                data={[
+                  {
+                    name: `Open Issues (${past30DaysData.open})`,
+                    population: past30DaysData.open,
+                    color: "#000000", // Black
+                    legendFontColor: "#7F7F7F",
+                    legendFontSize: 15,
+                  },
+                  {
+                    name: `Closed Issues (${past30DaysData.closed})`,
+                    population: past30DaysData.closed,
+                    color: "#ADD8E6", // Light Blue
+                    legendFontColor: "#7F7F7F",
+                    legendFontSize: 15,
+                  },
+                ]}
+                width={300}
+                height={220}
+                chartConfig={{
+                  backgroundGradientFrom: "#fff",
+                  backgroundGradientTo: "#fff",
+                  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  strokeWidth: 2,
+                }}
+                accessor="population"
+                backgroundColor="transparent"
+                paddingLeft="15"
+                center={[10, 50]}
               />
             </View>
             <View style={styles.chartContainer}>
-              <Text style={styles.chartTitle}>Month Categorized Issues</Text>
               <BarGraphWithFilter data={data} />
             </View>
           </ScrollView>
@@ -263,42 +295,30 @@ const StatisticsPage: React.FC = () => {
   );
 };
 
-export default StatisticsPage;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
+    backgroundColor: "#fff",
   },
   scrollViewContent: {
-    justifyContent: "center",
-    alignItems: "center",
-    paddingBottom: 20,
-  },
-  chartContainer: {
-    marginBottom: 20,
-    width: "100%",
-    alignItems: "center",
-  },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  header: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
   },
   workEfficiencyContainer: {
     marginBottom: 20,
-    width: "100%",
-    alignItems: "center",
   },
   workEfficiencyText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
   },
+  chartContainer: {
+    marginBottom: 20,
+  },
+  chartTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
 });
+
+export default StatisticsPage;

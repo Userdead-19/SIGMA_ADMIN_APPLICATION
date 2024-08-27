@@ -64,11 +64,11 @@ export default function Tab() {
 
   const fetchAllUsers = async () => {
     if (!state.hasMore || state.loading) return;
-
+    console.log("Fetching users...");
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const response = await axios.get(
-        `https://api.gms.intellx.in/administrator/all-users?page=${state.page}&limit=10` // Adjust query params as needed
+        `https://api.gms.intellx.in/administrator/all-users` // Adjust query params as needed
       );
       const users = response.data.users;
 
@@ -151,7 +151,7 @@ export default function Tab() {
           <FlatList
             data={state.filteredUser}
             renderItem={({ item }) => (
-              <UserCard user={item} reloadFunction={fetchAllUsers} />
+              <UserCard user={item} fetchAllUsers={fetchAllUsers} />
             )}
             keyExtractor={(item) => item.id.toString()}
             onEndReached={handleLoadMore}

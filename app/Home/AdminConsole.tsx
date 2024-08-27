@@ -67,7 +67,10 @@ export default function Tab() {
               ))
             ) : (
               <View style={styles.noRequestsContainer}>
-                <Text style={styles.noRequestsText}>No requests pending</Text>
+                <Text style={styles.noRequestsText}>
+                  This is where you approve requests for administrator
+                  registrations.
+                </Text>
               </View>
             )}
           </SafeAreaView>

@@ -198,13 +198,26 @@ export default function IssueDetails() {
             </View>
           </View>
           <View style={{ marginTop: 20, gap: 10 }}>
+            <Text style={styles.detailsText}>Issue ID: {issue?.issueNo}</Text>
             <Text style={styles.detailsText}>
               Raised By: {issue?.raised_by.name}{" "}
             </Text>
-            <Text style={styles.detailsText}>Floor: {issue?.issue.floor} </Text>
             <Text style={styles.detailsText}>
-              Block: {issue?.issue.block} block{" "}
+              Location: Floor:{issue?.issue.floor} - Block: {issue?.issue.block}
+              -
+              {issue?.issue.actionItem === "Restroom"
+                ? "Restroom"
+                : issue?.issue.actionItem === "Water Dispenser"
+                ? "Dispenser NO"
+                : "Room NO"}
+              :
+              {issue?.issue.actionItem === "Restroom"
+                ? issue?.issue.issueContent
+                : issue?.issue.actionItem === "Water Dispenser"
+                ? issue?.issue.issueContent
+                : issue?.issue.actionItem}
             </Text>
+
             <Text style={styles.detailsText}>
               Type: {issue?.issue.issueType}
             </Text>

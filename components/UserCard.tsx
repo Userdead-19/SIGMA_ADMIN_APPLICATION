@@ -25,10 +25,10 @@ interface User {
 
 const UserCard = ({
   user,
-  reloadFunction,
+  fetchAllUsers,
 }: {
   user: User;
-  reloadFunction: Function;
+  fetchAllUsers: Function;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
@@ -50,17 +50,24 @@ const UserCard = ({
   const deleteCurrentUser = async (id: string) => {
     try {
       const body = {
-        id: user.id,
+        id: id,
       };
+
       const response = await axios.delete(
-        "https://api.gms.intellx.in/client/delete",
-        { data: body }
+        `https://api.gms.intellx.in/client/delete`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: body,
+        }
       );
+
       console.log(response.data);
-      reloadFunction();
+      fetchAllUsers(); // Call the reload function to refresh the user list
       Alert.alert("User Deleted Successfully");
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log(error?.response);
       Alert.alert("Error Deleting User");
     }
   };

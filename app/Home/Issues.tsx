@@ -221,17 +221,17 @@ const IssuePage = () => {
   // Table Header Component
   const TableHeader = () => (
     <View style={styles.tableHeader}>
-      <Text style={styles.tableHeaderCell}>Issue No</Text>
-      <Text style={styles.tableHeaderCell}>Content</Text>
+      <Text style={styles.tableHeaderCell}>Issue Date</Text>
+      <Text style={styles.tableHeaderCell}>Action Item</Text>
       <Text style={styles.tableHeaderCell}>Status</Text>
     </View>
   );
 
   // Render Item based on View Mode
   const renderItem = ({ item }: { item: Issue }) => {
-    const issueNo = item.issueNo || "N/A";
-    const issueContent = item.issue?.issueContent || "No Content";
     const status = item.status || "Unknown";
+    const date = item.date || "N/A";
+    const actionItem = item.issue?.actionItem || "N/A";
 
     if (state.viewMode === "Tile") {
       return (
@@ -243,8 +243,8 @@ const IssuePage = () => {
       return (
         <TouchableOpacity onPress={() => handleItemPress(item)}>
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}>{issueNo}</Text>
-            <Text style={styles.tableCell}>{issueContent}</Text>
+            <Text style={styles.tableCell}>{date}</Text>
+            <Text style={styles.tableCell}>{actionItem}</Text>
             <Text style={styles.tableCell}>{status}</Text>
           </View>
         </TouchableOpacity>
