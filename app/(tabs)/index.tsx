@@ -16,6 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import * as jwt from "jwt-decode";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Toast from 'react-native-toast-message';
 
 type State = {
   email: string;
@@ -101,6 +102,39 @@ const LoginScreen = () => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
+  console.log(state.email);
+    const resetPassword = async () => {
+        if(state.email === ""){
+          Toast.show({
+            type:"error",
+            text1:"Please Enter you Roll No",
+            visibilityTime:2000,
+            
+          })
+        }
+        else 
+        {
+          try{
+            const body = {
+              id: state.email,
+            };
+            const response = await axios.post(
+              "https://api.gms.intellx.in/manager/forgot_password",
+              body
+            );
+            console.log(response.data);
+            Toast.show({
+              type:"success",
+              text1:"Reset link sent to your registered email",
+              visibilityTime:3000,
+              
+            })
+          }catch(error){  
+            console.log(error);
+        }
+        }
+      
+  }
   const handleLogin = async () => {
     dispatch({ type: "LOGIN_REQUEST" });
     try {
@@ -237,6 +271,13 @@ const LoginScreen = () => {
                 />
               </TouchableOpacity>
             </View>
+            <TouchableOpacity style={{ alignItems: "flex-start", alignSelf: "flex-start" }} onPress={()=>
+          {
+            resetPassword();
+          }
+        }>
+  <Text style={{ textAlign: "left" , marginLeft : 15,color:'#121212'}}>Forgot Password?</Text>
+</TouchableOpacity>
             {state.loading ? (
               <ActivityIndicator size="large" color="#8283e9" />
             ) : (
