@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
+  ActivityIndicator, // Import ActivityIndicator for loading spinner
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
@@ -21,8 +22,11 @@ export default function Tab() {
   const navigation = useNavigation();
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState([]);
+  const [loading, setLoading] = useState(true); // Add loading state for users
+  const [loadingApproval, setLoadingApproval] = useState(false); // Add loading state for approval actions
 
   const GetApprovalUsers = async () => {
+    setLoading(true); // Set loading to true before API call
     try {
       const response = await axios.get(
         "https://api.gms.intellx.in/manager/pending-approval"
@@ -31,6 +35,52 @@ export default function Tab() {
     } catch (error: any) {
       console.log("Error fetching users:", error);
       Alert.alert("Error fetching users:", error.message);
+    } finally {
+      setLoading(false); // Set loading to false after API call
+    }
+  };
+
+  const ApproveUser = async (confkey: any) => {
+    setLoadingApproval(true); // Set loadingApproval to true before API call
+    try {
+      await axios.get(`https://api.gms.intellx.in/manager/approve/${confkey}`);
+      Alert.alert("User Approved");
+      GetApprovalUsers(); // Refresh the list after approval
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Unknown error occurred";
+      Alert.alert("Error approving user", errorMessage);
+      console.error(
+        "Error approving user:",
+        errorMessage,
+        error.response || error
+      );
+    } finally {
+      setLoadingApproval(false); // Set loadingApproval to false after API call
+    }
+  };
+
+  const RejectUser = async (id: any) => {
+    setLoadingApproval(true); // Set loadingApproval to true before API call
+    try {
+      await axios.delete(`https://api.gms.intellx.in/manager/reject/${id}`);
+      Alert.alert("User Rejected");
+      GetApprovalUsers(); // Refresh the list after rejection
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Unknown error occurred";
+      Alert.alert("Error rejecting user", errorMessage);
+      console.error(
+        "Error rejecting user:",
+        errorMessage,
+        error.response || error
+      );
+    } finally {
+      setLoadingApproval(false); // Set loadingApproval to false after API call
     }
   };
 
@@ -57,12 +107,17 @@ export default function Tab() {
               </TouchableOpacity>
               <Text style={styles.headingText}>Admin Console</Text>
             </View>
-            {user.length > 0 ? (
+            {loading ? ( // Show loading spinner if loading is true
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#555555" />
+              </View>
+            ) : user.length > 0 ? (
               user.map((u, i) => (
                 <ApprovalCard
                   key={i}
                   user={u}
-                  resetFunction={GetApprovalUsers}
+                  ApproveUser={ApproveUser}
+                  RejectUser={RejectUser}
                 />
               ))
             ) : (
@@ -76,6 +131,11 @@ export default function Tab() {
           </SafeAreaView>
         </View>
       </ScrollView>
+      {loadingApproval && ( // Show loading spinner for approval actions
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#555555" />
+        </View>
+      )}
     </PaperProvider>
   );
 }
@@ -120,10 +180,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#555555",
   },
-  fab: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    height: Dimensions.get("window").height - 100, // Adjust based on your layout
+  },
+  loadingOverlay: {
     position: "absolute",
-    margin: 16,
+    top: 0,
+    left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

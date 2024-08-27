@@ -25,12 +25,13 @@ interface User {
 
 const ApprovalCard = ({
   user,
-  resetFunction,
+  ApproveUser,
+  RejectUser,
 }: {
   user: User;
-  resetFunction: () => void;
+  ApproveUser: Function;
+  RejectUser: Function;
 }) => {
-  console.log(user);
   const [expanded, setExpanded] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
 
@@ -41,50 +42,6 @@ const ApprovalCard = ({
       useNativeDriver: false,
     }).start();
     setExpanded(!expanded);
-  };
-
-  const ApproveUser = async () => {
-    try {
-      const response = await axios.get(
-        `https://api.gms.intellx.in/manager/approve/${user.confkey}`
-      );
-      resetFunction();
-      Alert.alert("User Approved");
-    } catch (error: any) {
-      // Check if the error has a response object
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Unknown error occurred";
-      Alert.alert("Error approving user", errorMessage);
-      console.error(
-        "Error approving user:",
-        errorMessage,
-        error.response || error
-      );
-    }
-  };
-
-  const RejectUser = async () => {
-    try {
-      const response = await axios.delete(
-        `https://api.gms.intellx.in/manager/reject/${user.id}`
-      );
-      resetFunction();
-      Alert.alert("User Rejected");
-    } catch (error: any) {
-      // Check if the error has a response object
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Unknown error occurred";
-      Alert.alert("Error rejecting user", errorMessage);
-      console.error(
-        "Error rejecting user:",
-        errorMessage,
-        error.response || error
-      );
-    }
   };
 
   const heightInterpolate = animation.interpolate({
@@ -117,10 +74,20 @@ const ApprovalCard = ({
 
       <Animated.View style={{ overflow: "hidden", height: heightInterpolate }}>
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.approveButton} onPress={ApproveUser}>
+          <TouchableOpacity
+            style={styles.approveButton}
+            onPress={() => {
+              ApproveUser(user.confkey);
+            }}
+          >
             <Text style={styles.buttonText}>Approve</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.rejectButton} onPress={RejectUser}>
+          <TouchableOpacity
+            style={styles.rejectButton}
+            onPress={() => {
+              RejectUser(user.id);
+            }}
+          >
             <Text style={styles.buttonText}>Reject</Text>
           </TouchableOpacity>
         </View>
