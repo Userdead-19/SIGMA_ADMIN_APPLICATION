@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -51,11 +52,19 @@ const reducer = (state: any, action: any) => {
       return { ...state, loading: action.payload };
     case "SET_HAS_MORE":
       return { ...state, hasMore: action.payload };
+    case "REMOVE_USER":
+      const filteredUsers = state.user.filter(
+        (user: any) => user.id !== action.payload
+      );
+      return {
+        ...state,
+        user: filteredUsers,
+        filteredUser: filteredUsers,
+      };
     default:
       return state;
   }
 };
-
 export default function Tab() {
   const navigation = useNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -64,7 +73,6 @@ export default function Tab() {
 
   const fetchAllUsers = async () => {
     if (!state.hasMore || state.loading) return;
-    console.log("Fetching users...");
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const response = await axios.get(
@@ -85,6 +93,33 @@ export default function Tab() {
     }
   };
 
+  const deleteCurrentUser = async (id: string) => {
+    // Optimistically remove the user from the local state
+    dispatch({ type: "REMOVE_USER", payload: id });
+
+    try {
+      const body = { id: id };
+
+      const response = await axios.delete(
+        `https://api.gms.intellx.in/client/delete`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: body,
+        }
+      );
+
+      console.log(response.data);
+      Alert.alert("User Deleted Successfully");
+    } catch (error: any) {
+      console.log(error?.response);
+      Alert.alert("Error Deleting User");
+
+      // Optionally, revert the state if deletion fails
+      // fetchAllUsers();  // Or re-add the user to the state
+    }
+  };
   const onChangeSearch = (query: string) => {
     setSearchQuery(query);
     const filteredUsers = state.user.filter((user: any) =>
@@ -105,7 +140,7 @@ export default function Tab() {
 
   useEffect(() => {
     fetchAllUsers();
-  }, []);
+  }, [state.user]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -151,7 +186,11 @@ export default function Tab() {
           <FlatList
             data={state.filteredUser}
             renderItem={({ item }) => (
-              <UserCard user={item} fetchAllUsers={fetchAllUsers} />
+              <UserCard
+                user={item}
+                fetchAllUsers={fetchAllUsers}
+                deleteCurrentUser={deleteCurrentUser}
+              />
             )}
             keyExtractor={(item) => item.id.toString()}
             onEndReached={handleLoadMore}

@@ -33,7 +33,11 @@ const BarGraph = ({
     },
     fillShadowGradient: "#3872F7", // Main bar color
     fillShadowGradientOpacity: 1,
-    yAxisInterval, // Custom interval for Y-axis
+    yAxisInterval,
+    propsForLabels: {
+      fontSize: 10, // Reduce this value to make the labels smaller
+    },
+    // Custom interval for Y-axis
   };
 
   const chartData = {
@@ -45,40 +49,48 @@ const BarGraph = ({
     ],
   };
 
-  const chartWidth = screenWidth * 0.9;
-  const chartHeight = screenHeight * 0.6;
+  const chartWidth = screenWidth * 1.3;
+  const chartHeight = screenHeight * 0.75;
 
   return (
-    <View style={styles.container}>
-      <BarChart
-        yAxisLabel=""
-        yAxisSuffix=""
-        data={{
-          labels: chartData.labels,
-          datasets: [
-            {
-              data: chartData.datasets[0].data,
-            },
-          ],
-        }}
-        width={chartWidth}
-        height={chartHeight}
-        chartConfig={chartConfig}
-        verticalLabelRotation={chartData.labels.length > 5 ? 60 : 0} // Rotate labels if there are many
-        fromZero
-        yAxisInterval={yAxisInterval} // Apply the custom Y-axis interval
-      />
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollContainer} horizontal>
+      <View style={styles.container}>
+        <BarChart
+          yAxisLabel=""
+          yAxisSuffix=""
+          data={{
+            labels: chartData.labels,
+            datasets: [
+              {
+                data: chartData.datasets[0].data,
+              },
+            ],
+          }}
+          width={chartWidth}
+          height={chartHeight}
+          chartConfig={chartConfig}
+          verticalLabelRotation={chartData.labels.length > 5 ? 90 : 0} // Rotate labels if there are many
+          fromZero
+          yAxisInterval={yAxisInterval} // Apply the custom Y-axis interval
+        />
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
+  },
   container: {
-    flex: 1,
     paddingTop: 40,
     backgroundColor: "#F2F2F2",
     borderWidth: 1,
     borderRadius: 10,
+    marginBottom: 20,
   },
   selectBox: {
     borderWidth: 0,

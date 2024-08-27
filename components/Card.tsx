@@ -39,9 +39,7 @@ interface Issue {
 
 const Card = ({ issue }: { issue: Issue }) => (
   <View style={tw`bg-white rounded-2xl p-4 mb-4 shadow gap-5`}>
-    <Text style={tw` font-bold mb-2 uppercase`}>
-      {issue.issue.issueContent}
-    </Text>
+    <Text style={tw` font-bold mb-2 uppercase`}>{issue.issue.issueCat}</Text>
     <View style={tw`flex-row items-center mb-2 gap-10`}>
       <View style={tw`flex flex-col`}>
         <Text style={tw`text-xs text-gray-600 mr-4`}>BLOCK</Text>
@@ -57,8 +55,8 @@ const Card = ({ issue }: { issue: Issue }) => (
       </View>
       <View style={tw`flex flex-col`}>
         <Text style={tw`text-xs text-gray-600 mr-4`}>TYPE</Text>
-        <Text style={tw`text-base text-black mr-6 font-semibold text-lg`}>
-          {issue.issue.issueCat}
+        <Text style={tw`text-base text-black mr-6 font-medium text-lg`}>
+          {issue.issue.issueType}
         </Text>
       </View>
     </View>
@@ -66,7 +64,9 @@ const Card = ({ issue }: { issue: Issue }) => (
     <View style={tw`flex-row items-center mb-2`}>
       <Ionicons name="person-circle" size={40} color="gray" />
       <View style={tw`flex-1 ml-4`}>
-        <Text style={tw`text-base font-bold`}>{issue.raised_by.name}</Text>
+        <Text style={tw`text-base text-sm text-nowrap flex font-bold`}>
+          {issue.raised_by.name}
+        </Text>
         <Text style={tw`text-xs text-gray-600`}>
           {issue.raised_by.personId}
         </Text>

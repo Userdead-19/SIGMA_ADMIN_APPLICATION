@@ -226,14 +226,14 @@ const StatisticsPage: React.FC = () => {
                   {
                     name: `Open Issues (${past365DaysData.open})`,
                     population: past365DaysData.open,
-                    color: "#000000", // Black
+                    color: "rgba(0, 122, 255, 1)", // Black
                     legendFontColor: "#7F7F7F",
                     legendFontSize: 15,
                   },
                   {
                     name: `Closed Issues (${past365DaysData.closed})`,
                     population: past365DaysData.closed,
-                    color: "#ADD8E6", // Light Blue
+                    color: "rgba(255, 0, 0, 1)", // Light Blue
                     legendFontColor: "#7F7F7F",
                     legendFontSize: 15,
                   },
@@ -249,7 +249,7 @@ const StatisticsPage: React.FC = () => {
                 accessor="population"
                 backgroundColor="transparent"
                 paddingLeft="15"
-                center={[10, 50]}
+                center={[0, 0]}
               />
             </View>
             <View style={styles.chartContainer}>
@@ -259,14 +259,14 @@ const StatisticsPage: React.FC = () => {
                   {
                     name: `Open Issues (${past30DaysData.open})`,
                     population: past30DaysData.open,
-                    color: "#000000", // Black
+                    color: "rgba(0, 122, 255, 1)", // Black
                     legendFontColor: "#7F7F7F",
                     legendFontSize: 15,
                   },
                   {
                     name: `Closed Issues (${past30DaysData.closed})`,
                     population: past30DaysData.closed,
-                    color: "#ADD8E6", // Light Blue
+                    color: "rgba(255, 0, 0, 1)", // Light Blue
                     legendFontColor: "#7F7F7F",
                     legendFontSize: 15,
                   },
@@ -282,7 +282,7 @@ const StatisticsPage: React.FC = () => {
                 accessor="population"
                 backgroundColor="transparent"
                 paddingLeft="15"
-                center={[10, 50]}
+                center={[0, 0]}
               />
             </View>
             <View style={styles.chartContainer}>
