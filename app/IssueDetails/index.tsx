@@ -249,25 +249,28 @@ export default function IssueDetails() {
           )}
 
           <Text style={styles.commentsHeading}>COMMENTS</Text>
-          {comments
-            .filter((comment) => comment.content.trim())
-            .map((comment, index) => (
+          {issue?.comments && issue.comments.length > 0 ? (
+            issue.comments.map((comment, index) => (
               <View key={index} style={styles.commentBox}>
                 <Text style={styles.commentUser}>{comment.by}</Text>
-                <Text style={styles.commentContent}>{comment.content}</Text>
-              </View>
-            ))}
+                <Text style={styles.commentContent}>{comment.date}</Text>
 
-          <View style={styles.logsContainer}>
-            <Text style={styles.logsHeading}>LOGS</Text>
-            {issue?.log.map((log, index) => (
-              <View key={index} style={styles.logBox}>
-                <Text style={styles.logDate}>{log.date}</Text>
-                <Text style={styles.logAction}>{log.action}</Text>
-                <Text style={styles.logBy}>By: {log.by}</Text>
+                {Array.isArray(comment.content) && comment.content.length > 0
+                  ? comment.content.map((nestedComment, nestedIndex) => (
+                      <View key={nestedIndex}>
+                        <Text style={styles.commentContent}>
+                          Comment : {nestedComment.content}
+                        </Text>
+                      </View>
+                    ))
+                  : null}
               </View>
-            ))}
-          </View>
+            ))
+          ) : (
+            <Text style={{ alignSelf: "center", margin: 10 }}>
+              No comments available
+            </Text>
+          )}
 
           <View style={styles.inputContainer}>
             <TextInput
