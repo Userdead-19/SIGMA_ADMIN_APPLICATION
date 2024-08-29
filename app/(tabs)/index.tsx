@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  BackHandler,
 } from "react-native";
 import { router, useNavigation } from "expo-router";
 import { Image } from "react-native";
@@ -16,7 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import * as jwt from "jwt-decode";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 
 type State = {
   email: string;
@@ -97,44 +98,70 @@ const LoginScreen = () => {
     }
   };
 
+  const checkServerStatus = async () => {
+    try {
+      const response = await axios.get("https://api.gms.intellx.in");
+      if (response.status === 200) {
+        console.log("Server is up and running");
+        return true;
+      }
+    } catch (error) {
+      console.log("Server is down");
+      return false;
+    }
+  };
+
+  const loadApplication = async () => {
+    const serverStatus = await checkServerStatus();
+    if (serverStatus) {
+      await checkForToken();
+    } else {
+      Alert.alert("Server is down", "Please try again later", [
+        {
+          text: "Retry",
+          onPress: () => loadApplication(),
+        },
+        {
+          text: "Exit",
+          onPress: () => BackHandler.exitApp(),
+        },
+      ]);
+    }
+  };
+
   useEffect(() => {
-    checkForToken();
+    loadApplication();
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
   console.log(state.email);
-    const resetPassword = async () => {
-        if(state.email === ""){
-          Toast.show({
-            type:"error",
-            text1:"Please Enter you Roll No",
-            visibilityTime:2000,
-            
-          })
-        }
-        else 
-        {
-          try{
-            const body = {
-              id: state.email,
-            };
-            const response = await axios.post(
-              "https://api.gms.intellx.in/manager/forgot_password",
-              body
-            );
-            console.log(response.data);
-            Toast.show({
-              type:"success",
-              text1:"Reset link sent to your registered email",
-              visibilityTime:3000,
-              
-            })
-          }catch(error){  
-            console.log(error);
-        }
-        }
-      
-  }
+  const resetPassword = async () => {
+    if (state.email === "") {
+      Toast.show({
+        type: "error",
+        text1: "Please Enter you Roll No",
+        visibilityTime: 2000,
+      });
+    } else {
+      try {
+        const body = {
+          id: state.email,
+        };
+        const response = await axios.post(
+          "https://api.gms.intellx.in/manager/forgot_password",
+          body
+        );
+        console.log(response.data);
+        Toast.show({
+          type: "success",
+          text1: "Reset link sent to your registered email",
+          visibilityTime: 3000,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
   const handleLogin = async () => {
     dispatch({ type: "LOGIN_REQUEST" });
     try {
@@ -271,13 +298,18 @@ const LoginScreen = () => {
                 />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={{ alignItems: "flex-start", alignSelf: "flex-start" }} onPress={()=>
-          {
-            resetPassword();
-          }
-        }>
-  <Text style={{ textAlign: "left" , marginLeft : 15,color:'#121212'}}>Forgot Password?</Text>
-</TouchableOpacity>
+            <TouchableOpacity
+              style={{ alignItems: "flex-start", alignSelf: "flex-start" }}
+              onPress={() => {
+                resetPassword();
+              }}
+            >
+              <Text
+                style={{ textAlign: "left", marginLeft: 15, color: "#121212" }}
+              >
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
             {state.loading ? (
               <ActivityIndicator size="large" color="#8283e9" />
             ) : (
