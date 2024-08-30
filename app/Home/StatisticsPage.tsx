@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import axios from "axios";
 import { useNavigation } from "expo-router";
-import { Appbar } from "react-native-paper";
+import { ActivityIndicator, Appbar } from "react-native-paper";
 import BarGraphWithFilter from "@/components/barGraphComponentFilter";
 import BarGraph from "@/components/barGraphComponent";
 
@@ -202,7 +202,15 @@ const StatisticsPage: React.FC = () => {
       </Appbar.Header>
       <View style={styles.container}>
         {isLoading ? (
-          <Text>Loading...</Text>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator size="large" color="blue" />
+          </View>
         ) : (
           <ScrollView
             contentContainerStyle={styles.scrollViewContent}
