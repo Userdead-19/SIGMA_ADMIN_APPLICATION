@@ -20,6 +20,7 @@ import UserCard from "@/components/UserCard";
 import axios from "axios";
 import tw from "twrnc";
 import { router, useNavigation } from "expo-router";
+import { BACKEND_URL } from "@/production.config";
 
 const { width } = Dimensions.get("window");
 
@@ -76,7 +77,7 @@ export default function Tab() {
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const response = await axios.get(
-        `https://api.gms.intellx.in/administrator/all-users` // Adjust query params as needed
+        `${BACKEND_URL}/administrator/all-users` // Adjust query params as needed
       );
       const users = response.data.users;
 
@@ -100,15 +101,12 @@ export default function Tab() {
     try {
       const body = { id: id };
 
-      const response = await axios.delete(
-        `https://api.gms.intellx.in/client/delete`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          data: body,
-        }
-      );
+      const response = await axios.delete(`${BACKEND_URL}/client/delete`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: body,
+      });
 
       console.log(response.data);
       Alert.alert("User Deleted Successfully");

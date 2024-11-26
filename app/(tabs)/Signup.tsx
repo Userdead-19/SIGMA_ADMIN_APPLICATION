@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { router } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { BACKEND_URL } from "@/production.config";
 
 type State = {
   fullName: string;
@@ -71,14 +72,11 @@ const SignUpScreen = () => {
     if (!validateInputs()) return;
     setLoading(true);
     try {
-      const response = await axios.post(
-        "https://api.gms.intellx.in/manager/register",
-        {
-          name: state.fullName,
-          id: state.id,
-          password: state.password,
-        }
-      );
+      const response = await axios.post(`${BACKEND_URL}/manager/register`, {
+        name: state.fullName,
+        id: state.id,
+        password: state.password,
+      });
       if (response.status === 201) {
         Alert.alert(
           "Success",

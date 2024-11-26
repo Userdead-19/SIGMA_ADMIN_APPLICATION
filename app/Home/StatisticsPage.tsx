@@ -6,6 +6,7 @@ import { useNavigation } from "expo-router";
 import { ActivityIndicator, Appbar } from "react-native-paper";
 import BarGraphWithFilter from "@/components/barGraphComponentFilter";
 import BarGraph from "@/components/barGraphComponent";
+import { BACKEND_URL } from "@/production.config";
 
 interface Issue {
   issueLastUpdateTime: string;
@@ -73,9 +74,9 @@ const StatisticsPage: React.FC = () => {
   const fetchData = async () => {
     try {
       const [taskResponse, closedResponse, openResponse] = await Promise.all([
-        axios.get("https://api.gms.intellx.in/tasks"),
-        axios.get("https://api.gms.intellx.in/client/issues/total/closed"),
-        axios.get("https://api.gms.intellx.in/client/issues/total/open"),
+        axios.get(`${BACKEND_URL}/tasks`),
+        axios.get(`${BACKEND_URL}/client/issues/total/closed`),
+        axios.get(`${BACKEND_URL}/client/issues/total/open`),
       ]);
 
       setData(taskResponse.data.issues);

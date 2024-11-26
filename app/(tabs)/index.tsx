@@ -18,6 +18,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import * as jwt from "jwt-decode";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
+import { BACKEND_URL } from "@/production.config";
 
 type State = {
   email: string;
@@ -100,7 +101,7 @@ const LoginScreen = () => {
 
   const checkServerStatus = async () => {
     try {
-      const response = await axios.get("https://api.gms.intellx.in");
+      const response = await axios.get(BACKEND_URL);
       if (response.status === 200) {
         console.log("Server is up and running");
         return true;
@@ -148,7 +149,7 @@ const LoginScreen = () => {
           id: state.email,
         };
         const response = await axios.post(
-          "https://api.gms.intellx.in/manager/forgot_password",
+          `${BACKEND_URL}/manager/forgot_password`,
           body
         );
         console.log(response.data);
@@ -165,13 +166,10 @@ const LoginScreen = () => {
   const handleLogin = async () => {
     dispatch({ type: "LOGIN_REQUEST" });
     try {
-      let response = await axios.post(
-        "https://api.gms.intellx.in/manager/login",
-        {
-          id: state.email,
-          password: state.password,
-        }
-      );
+      let response = await axios.post(`${BACKEND_URL}/manager/login`, {
+        id: state.email,
+        password: state.password,
+      });
       console.log(response.data);
       await AsyncStorage.setItem("admin-token", response.data.token);
       dispatch({ type: "LOGIN_SUCCESS", payload: response.data });

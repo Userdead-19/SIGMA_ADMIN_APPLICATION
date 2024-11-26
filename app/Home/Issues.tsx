@@ -18,6 +18,7 @@ import {
 import Card from "@/components/Card";
 import axios from "axios";
 import { router, useFocusEffect, useNavigation } from "expo-router";
+import { BACKEND_URL } from "@/production.config";
 
 interface Issue {
   _id: { $oid: string };
@@ -160,7 +161,7 @@ const IssuePage = () => {
   const fetchAllIssues = useCallback(async () => {
     dispatch({ type: SET_LOADING, payload: true });
     try {
-      const response = await axios.get("https://api.gms.intellx.in/tasks");
+      const response = await axios.get(`${BACKEND_URL}/tasks`);
       if (response.data && response.data.issues) {
         dispatch({ type: SET_ISSUES, payload: response.data.issues });
       } else {

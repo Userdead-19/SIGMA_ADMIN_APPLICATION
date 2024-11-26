@@ -27,6 +27,7 @@ import tw from "twrnc";
 import { useUser } from "@/Hooks/UserContext";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BACKEND_URL } from "@/production.config";
 
 const { width, height } = Dimensions.get("window");
 
@@ -59,7 +60,7 @@ export default function TabLayout() {
   const fetchCountSolvedISsues = async () => {
     try {
       const response = await axios.get(
-        "https://api.gms.intellx.in/client/issues/total/closed"
+        `${BACKEND_URL}/client/issues/total/closed`
       );
       dispatch({
         type: "SET_ISSUES_RESOLVED",
@@ -73,7 +74,7 @@ export default function TabLayout() {
   const fetchTodoList = async () => {
     try {
       const response = await axios.get(
-        "https://api.gms.intellx.in/client/issues/total/open"
+        `${BACKEND_URL}/client/issues/total/open`
       );
       dispatch({ type: "SET_TODO_LIST", payload: response.data.open_issues });
     } catch (error) {
@@ -83,9 +84,7 @@ export default function TabLayout() {
 
   const fetchTotalIssues = async () => {
     try {
-      const response = await axios.get(
-        "https://api.gms.intellx.in/client/issues/total"
-      );
+      const response = await axios.get(`${BACKEND_URL}/client/issues/total`);
       dispatch({
         type: "SET_TOTAL_ISSUES",
         payload: response.data.total_issues,

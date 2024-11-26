@@ -19,6 +19,7 @@ import {
 } from "react-native-paper";
 import tw from "twrnc";
 import { useFocusEffect } from "expo-router";
+import { BACKEND_URL } from "@/production.config";
 
 const { width } = Dimensions.get("window");
 
@@ -75,7 +76,7 @@ export default function Tab() {
 
   const fetchIssues = async () => {
     try {
-      const response = await axios.get("https://api.gms.intellx.in/tasks/todo");
+      const response = await axios.get(`${BACKEND_URL}/tasks/todo`);
       dispatch({ type: "SET_ISSUE_LIST", payload: response.data.tasks });
     } catch (error) {
       console.log(error);

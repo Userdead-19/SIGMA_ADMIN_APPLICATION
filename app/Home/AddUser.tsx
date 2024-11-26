@@ -11,6 +11,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { router } from "expo-router";
+import { BACKEND_URL } from "@/production.config";
 
 type State = {
   fullName: string;
@@ -66,7 +67,7 @@ const SignUpScreen = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://api.gms.intellx.in/administrator/new-user",
+        `${BACKEND_URL}/administrator/new-user`,
         {
           name: state.fullName,
           id: state.id,

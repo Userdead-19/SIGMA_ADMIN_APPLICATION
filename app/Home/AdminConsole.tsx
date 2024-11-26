@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { FAB, Provider as PaperProvider } from "react-native-paper";
 import ApprovalCard from "@/components/ApprovalCard";
 import axios from "axios";
+import { BACKEND_URL } from "@/production.config";
 
 const { width } = Dimensions.get("window");
 
@@ -29,7 +30,7 @@ export default function Tab() {
     setLoading(true); // Set loading to true before API call
     try {
       const response = await axios.get(
-        "https://api.gms.intellx.in/manager/pending-approval"
+        `${BACKEND_URL}/manager/pending-approval`
       );
       setUser(response.data.users);
     } catch (error: any) {
@@ -43,7 +44,7 @@ export default function Tab() {
   const ApproveUser = async (confkey: any) => {
     setLoadingApproval(true); // Set loadingApproval to true before API call
     try {
-      await axios.get(`https://api.gms.intellx.in/manager/approve/${confkey}`);
+      await axios.get(`${BACKEND_URL}/manager/approve/${confkey}`);
       Alert.alert("User Approved");
       GetApprovalUsers(); // Refresh the list after approval
     } catch (error: any) {
