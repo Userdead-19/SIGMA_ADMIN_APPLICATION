@@ -38,51 +38,70 @@ interface Issue {
 }
 
 const Card = ({ issue }: { issue: Issue }) => (
-  <View style={tw`bg-white rounded-2xl p-4 mb-4 shadow gap-5`}>
-    <Text style={tw` font-bold mb-2 uppercase`}>{issue.issue.issueCat}</Text>
-    <View style={tw`flex-row items-center mb-2 gap-10`}>
-      <View style={tw`flex flex-col`}>
-        <Text style={tw`text-xs text-gray-600 mr-4`}>BLOCK</Text>
-        <Text style={tw`text-base text-black mr-6 font-semibold text-2xl`}>
+  <View style={tw`bg-white rounded-2xl p-4 mb-4 shadow`}>
+    <Text style={tw`font-bold mb-2 uppercase`}>{issue.issue.issueCat}</Text>
+    <View style={tw`flex-row flex-wrap items-center mb-2 gap-4`}>
+      <View style={tw`flex-1`}>
+        <Text style={tw`text-xs text-gray-600`}>BLOCK</Text>
+        <Text
+          style={[
+            tw`text-base text-black font-semibold`,
+            issue.issue.block.length > 2 ? tw`text-lg` : tw`text-2xl`,
+          ]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
           {issue.issue.block}
         </Text>
       </View>
-      <View style={tw`flex flex-col`}>
-        <Text style={tw`text-xs text-gray-600 mr-4`}>FLOOR</Text>
-        <Text style={tw`text-base text-black mr-6 font-semibold text-2xl`}>
+      <View style={tw`flex-1`}>
+        <Text style={tw`text-xs text-gray-600`}>FLOOR</Text>
+        <Text
+          style={[
+            tw`text-base text-black font-semibold`,
+            issue.issue.floor.length > 2 ? tw`text-lg` : tw`text-2xl`,
+          ]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
           {issue.issue.floor}
         </Text>
       </View>
-      <View style={tw`flex flex-col`}>
-        <Text style={tw`text-xs text-gray-600 mr-4`}>TYPE</Text>
-        <Text style={tw`text-base text-black mr-6 font-medium text-lg`}>
+      <View style={tw`flex-1`}>
+        <Text style={tw`text-xs text-gray-600`}>TYPE</Text>
+        <Text
+          style={[
+            tw`text-base text-black font-semibold`,
+            issue.issue.issueType.length > 2 ? tw`text-lg` : tw`text-2xl`,
+          ]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
           {issue.issue.issueType}
         </Text>
       </View>
     </View>
-    <View style={tw`border border-gray-200 px-5`}></View>
-    <View style={tw`flex-row items-center mb-2`}>
+    <View style={tw`border-t border-gray-200 mt-2 mb-4`} />
+    <View style={tw`flex-row items-center`}>
       <Ionicons name="person-circle" size={40} color="gray" />
-      <View style={tw`flex-1 ml-4`}>
-        <Text style={tw`text-base text-sm text-nowrap flex font-bold`}>
+      <View style={tw`ml-4 flex-1`}>
+        <Text style={tw`text-base font-bold`} numberOfLines={1}>
           {issue.raised_by.name}
         </Text>
-        <Text style={tw`text-xs text-gray-600`}>
+        <Text style={tw`text-xs text-gray-600`} numberOfLines={1}>
           {issue.raised_by.personId}
         </Text>
       </View>
       <TouchableOpacity
-        style={tw`bg-blue-500 p-4   rounded-full  ml-16  flex-row justify-center items-center gap-2`}
-        onPress={() => {
+        style={tw`bg-blue-500 p-4 rounded-full`}
+        onPress={() =>
           router.push({
             pathname: "/IssueDetails",
-            params: {
-              issue: JSON.stringify(issue),
-            },
-          });
-        }}
+            params: { issue: JSON.stringify(issue) },
+          })
+        }
       >
-        <ArrowUpRightIcon size={20} color={"white"} />
+        <ArrowUpRightIcon size={20} color="white" />
       </TouchableOpacity>
     </View>
   </View>
