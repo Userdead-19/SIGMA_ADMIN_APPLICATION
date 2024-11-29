@@ -1,12 +1,21 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import axios from "axios";
 import { useNavigation } from "expo-router";
-import { ActivityIndicator, Appbar } from "react-native-paper";
+import { ActivityIndicator, Appbar, Button } from "react-native-paper";
 import BarGraphWithFilter from "@/components/barGraphComponentFilter";
 import BarGraph from "@/components/barGraphComponent";
 import { BACKEND_URL } from "@/production.config";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 interface Issue {
   issueLastUpdateTime: string;
@@ -69,6 +78,10 @@ const StatisticsPage: React.FC = () => {
   });
   const [past30DaysData, setPast30DaysData] = useState({ open: 0, closed: 0 });
   const [workEfficiency, setWorkEfficiency] = useState<number | null>(null);
+  const [customStartDate, setCustomStartDate] = useState<Date | null>(null);
+  const [customEndDate, setCustomEndDate] = useState<Date | null>(null);
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
   const navigation = useNavigation();
 
   const fetchData = async () => {
@@ -195,6 +208,86 @@ const StatisticsPage: React.FC = () => {
     }
   }, [data, filterIssuesByDateRange]);
 
+  const handleGeneratePDF = async () => {
+    if (!customStartDate || !customEndDate) {
+      Alert.alert("Error", "Please select a valid date range.");
+      return;
+    }
+    try {
+      const fromDate = formatDateToDDMMYYYY(customStartDate);
+      const toDate = formatDateToDDMMYYYY(customEndDate);
+      console.log(fromDate, toDate);
+      const pdfURL = `${BACKEND_URL}/manager/generate-pdf?from=${fromDate}&to=${toDate}`;
+      await Linking.openURL(pdfURL);
+    } catch (error) {
+      Alert.alert("Error", "Failed to open PDF link.");
+    }
+  };
+
+  const formatDateToDDMMYYYY = (date: any) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const openPDF = (fromDate: any, toDate: any) => {
+    const pdfURL = `${BACKEND_URL}/manager/generate-pdf?from=${fromDate}&to=${toDate}`;
+    Linking.openURL(pdfURL).catch((err) =>
+      Alert.alert("Error", `Failed to open URL: ${err.message}`)
+    );
+  };
+  const handleStartDateChange = (event: any, selectedDate?: Date) => {
+    setShowStartPicker(false);
+    if (selectedDate) setCustomStartDate(selectedDate);
+  };
+
+  const handleEndDateChange = (event: any, selectedDate?: Date) => {
+    setShowEndPicker(false);
+    if (selectedDate) setCustomEndDate(selectedDate);
+  };
+
+  const getCurrentDateRange = () => {
+    const today = new Date();
+    const formattedDate = formatDateToDDMMYYYY(today);
+    return { from: formattedDate, to: formattedDate };
+  };
+
+  const getPastWeekDateRange = () => {
+    const today = new Date();
+    const pastWeek = new Date(today);
+    pastWeek.setDate(today.getDate() - 7);
+    return {
+      from: formatDateToDDMMYYYY(pastWeek),
+      to: formatDateToDDMMYYYY(today),
+    };
+  };
+
+  const getPastMonthDateRange = () => {
+    const today = new Date();
+    const pastMonth = new Date(today);
+    pastMonth.setMonth(today.getMonth() - 1);
+    return {
+      from: formatDateToDDMMYYYY(pastMonth),
+      to: formatDateToDDMMYYYY(today),
+    };
+  };
+
+  // Handlers
+  const handleCurrentDayPDF = () => {
+    const { from, to } = getCurrentDateRange();
+    openPDF(from, to);
+  };
+
+  const handlePastWeekPDF = () => {
+    const { from, to } = getPastWeekDateRange();
+    openPDF(from, to);
+  };
+
+  const handlePastMonthPDF = () => {
+    const { from, to } = getPastMonthDateRange();
+    openPDF(from, to);
+  };
   return (
     <>
       <Appbar.Header>
@@ -297,6 +390,87 @@ const StatisticsPage: React.FC = () => {
             <View style={styles.chartContainer}>
               <BarGraphWithFilter data={data} />
             </View>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <View style={styles.dateRangeContainer}>
+                <Text style={styles.label}>Select Custom Date Range:</Text>
+                <TouchableOpacity
+                  onPress={() => setShowStartPicker(true)}
+                  style={styles.dateButton}
+                >
+                  <Text style={styles.dateText}>
+                    {customStartDate
+                      ? formatDateToDDMMYYYY(customStartDate)
+                      : "Select Start Date"}
+                  </Text>
+                </TouchableOpacity>
+                {showStartPicker && (
+                  <DateTimePicker
+                    value={customStartDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={handleStartDateChange}
+                  />
+                )}
+
+                <TouchableOpacity
+                  onPress={() => setShowEndPicker(true)}
+                  style={styles.dateButton}
+                >
+                  <Text style={styles.dateText}>
+                    {customEndDate
+                      ? formatDateToDDMMYYYY(customEndDate)
+                      : "Select End Date"}
+                  </Text>
+                </TouchableOpacity>
+                {showEndPicker && (
+                  <DateTimePicker
+                    value={customEndDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={handleEndDateChange}
+                  />
+                )}
+              </View>
+
+              <Button
+                mode="contained"
+                style={styles.pdfButton}
+                onPress={handleGeneratePDF}
+                disabled={!customStartDate || !customEndDate}
+              >
+                Generate PDF
+              </Button>
+            </View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={handleCurrentDayPDF}
+            >
+              <Text style={styles.closeButtonText}>Print Curent Day PDF</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={handlePastWeekPDF}
+            >
+              <Text style={styles.closeButtonText}>Print Past Week PDF</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={handlePastMonthPDF}
+            >
+              <Text style={styles.closeButtonText}>Print Past Month PDF</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={handlePastMonthPDF}
+            >
+              <Text style={styles.closeButtonText}>Print Past year PDF</Text>
+            </TouchableOpacity>
           </ScrollView>
         )}
       </View>
@@ -328,6 +502,34 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+  closeButton: {
+    borderWidth: 1,
+    borderColor: "#DDE6F0",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#E6F0FF",
+    alignItems: "center",
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: "#003366",
+  },
+  dateRangeContainer: { marginVertical: 20 },
+  label: { fontSize: 16, fontWeight: "600", marginBottom: 10 },
+  dateButton: {
+    backgroundColor: "#ddd",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 5,
+    width: 200,
+    alignItems: "center",
+  },
+  dateText: { fontSize: 14 },
+  pdfButton: { marginVertical: 10, width: 200, alignSelf: "center" },
+  metricContainer: { marginVertical: 10 },
+  metricText: { fontSize: 18, fontWeight: "600" },
 });
 
 export default StatisticsPage;

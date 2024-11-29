@@ -80,6 +80,10 @@ const LoginScreen = () => {
           updateUser({
             name: (decode?.sub as unknown as { name: string })?.name,
             id: (decode?.sub as unknown as { id: string })?.id,
+            access:
+              (decode?.sub as unknown as { mod: number })?.mod === 0
+                ? "not"
+                : "access",
             confirmed: true,
           });
           router.replace("/Home");
@@ -178,6 +182,7 @@ const LoginScreen = () => {
       updateUser({
         name: response.data.user.name,
         id: response.data.user.id,
+        access: response.data.user.mod === 0 ? "not" : "access",
         confirmed: true,
       });
       router.replace("/Home");

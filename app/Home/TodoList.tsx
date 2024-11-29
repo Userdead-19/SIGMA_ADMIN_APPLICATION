@@ -20,6 +20,7 @@ import {
 import tw from "twrnc";
 import { useFocusEffect } from "expo-router";
 import { BACKEND_URL } from "@/production.config";
+import { useUser } from "@/Hooks/UserContext";
 
 const { width } = Dimensions.get("window");
 
@@ -27,6 +28,7 @@ const { width } = Dimensions.get("window");
 const initialState = {
   issueList: [],
   filteredIssueList: [],
+  ascending: false,
 };
 
 // Reducer function
@@ -36,10 +38,20 @@ const reducer = (state: any, action: any) => {
       return {
         ...state,
         issueList: action.payload,
-        filteredIssueList: action.payload,
       };
     case "SET_FILTERED_ISSUE_LIST":
       return { ...state, filteredIssueList: action.payload };
+    case "SORT_ISSUES_BY_DATE":
+      const sortedList = [...state.issueList].sort((a: any, b: any) => {
+        const dateA: any = a.delay_days;
+        const dateB: any = b.delay_days;
+        return state.ascending ? dateA - dateB : dateB - dateA; // Ascending or descending based on flag
+      });
+      return {
+        ...state,
+        filteredIssueList: sortedList,
+        ascending: !state.ascending, // Toggle sorting order
+      };
     default:
       return state;
   }
@@ -71,7 +83,6 @@ interface Issue {
 export default function Tab() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortAsc, setSortAsc] = useState(true);
   const navigation = useNavigation();
 
   const fetchIssues = async () => {
@@ -83,24 +94,19 @@ export default function Tab() {
     }
   };
 
-  const onChangeSearch = (query: any) => {
+  const onChangeSearch = (query: string) => {
     setSearchQuery(query);
-    const filteredIssues = state.issueList.filter((issue: any) =>
-      issue.issue.issueContent.toLowerCase().includes(query.toLowerCase())
+
+    const filteredIssues = state.issueList.filter((issue: Issue) =>
+      issue.issueNo.toLowerCase().includes(query.toLowerCase())
     );
+
     dispatch({ type: "SET_FILTERED_ISSUE_LIST", payload: filteredIssues });
   };
 
   const onSortIssues = () => {
-    const sortedIssues = [...state.filteredIssueList].sort((a, b) => {
-      if (sortAsc) {
-        return a.issue.issueContent.localeCompare(b.issue.issueContent);
-      } else {
-        return b.issue.issueContent.localeCompare(a.issue.issueContent);
-      }
-    });
-    dispatch({ type: "SET_FILTERED_ISSUE_LIST", payload: sortedIssues });
-    setSortAsc(!sortAsc);
+    console.log("Sorting issues by date");
+    dispatch({ type: "SORT_ISSUES_BY_DATE" });
   };
 
   useFocusEffect(
@@ -120,17 +126,18 @@ export default function Tab() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <SafeAreaView style={{ paddingHorizontal: width * 0.025 }}>
+            {/* Header Section */}
             <View style={styles.header}>
               <TouchableOpacity
                 style={styles.iconContainer}
-                onPress={() => {
-                  navigation.goBack();
-                }}
+                onPress={() => navigation.goBack()}
               >
                 <AntDesign name="left" size={15} color="#555555" />
               </TouchableOpacity>
               <Text style={styles.headingText}>To Do List</Text>
             </View>
+
+            {/* Search and Sort Section */}
             <View style={styles.searchSortContainer}>
               <Searchbar
                 placeholder="Search"
@@ -146,14 +153,20 @@ export default function Tab() {
                 <Text style={{ color: "white" }}>Sort</Text>
               </Button>
             </View>
-            {state.filteredIssueList.length === 0 ? (
-              <View style={styles.emptyMessageContainer}>
-                <Text style={styles.emptyMessageText}>No issues found</Text>
-              </View>
-            ) : (
-              state.filteredIssueList.map((card: Issue, index: number) => (
-                <Card key={index} issue={card} />
+
+            {/* Issue List Section */}
+            {state.filteredIssueList && state.filteredIssueList.length > 0 ? (
+              state.filteredIssueList.map((issue: Issue) => (
+                <Card key={issue._id as any} issue={issue} />
               ))
+            ) : state.issueList && state.issueList.length > 0 ? (
+              state.issueList.map((issue: Issue) => (
+                <Card key={issue._id as any} issue={issue} />
+              ))
+            ) : (
+              <Text style={styles.emptyMessageText}>
+                No issues found. Please try again.
+              </Text>
             )}
           </SafeAreaView>
         </View>

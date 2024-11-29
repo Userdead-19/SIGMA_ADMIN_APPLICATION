@@ -41,6 +41,7 @@ interface Issue {
   log: { date: string; action: string; by: string }[];
   survey: {};
   anonymity: string;
+  assignee: string;
 }
 
 // Define action types

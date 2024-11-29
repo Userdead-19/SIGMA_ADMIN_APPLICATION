@@ -107,6 +107,7 @@ export default function TabLayout() {
   }, [navigation]);
 
   const user = useUser();
+  console.log(user);
 
   return (
     <View
@@ -266,6 +267,7 @@ export default function TabLayout() {
                 onPress={() => {
                   router.push("/Home/UserList");
                 }}
+                disabled={user?.access == "access" ? false : true}
               >
                 <View style={tw`flex flex-row justify-between mt-4 ml-4`}>
                   <UsersIcon size={34} color={"blue"} />
@@ -298,6 +300,7 @@ export default function TabLayout() {
                 onPress={() => {
                   router.push("/Home/AdminConsole");
                 }}
+                disabled={user?.access == "access" ? false : true}
               >
                 <View style={tw`mt-4 ml-4 `}>
                   <CubeTransparentIcon size={34} color={"blue"} />
@@ -411,6 +414,7 @@ export default function TabLayout() {
                   onPress={() => {
                     router.push("/Home/StatisticsPage");
                   }}
+                  disabled={user?.access == "access" ? false : true}
                 >
                   <View style={tw`mt-5 ml-5`}>
                     <ChartBarIcon size={34} color={"blue"} />

@@ -1,5 +1,5 @@
 // app/details.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   View,
@@ -9,6 +9,7 @@ import {
   Dimensions,
   TextInput,
   Alert,
+  Linking,
 } from "react-native";
 import { router, useGlobalSearchParams, useNavigation } from "expo-router";
 import { AntDesign, Feather, SimpleLineIcons } from "@expo/vector-icons";
@@ -36,45 +37,91 @@ interface Issue {
     floor: string;
     actionItem: string;
   };
-  comments: { date: string; by: string; content: string }[];
+  comments: {
+    date: string;
+    by: string;
+    content: [
+      {
+        by: string;
+        content: string;
+      }
+    ];
+  }[];
   status: string;
   log: { date: string; action: string; by: string }[];
-  survey: {};
+  survey: {
+    Cleanliness: number;
+    Functionality: number;
+    Chair: number;
+    Projector: number;
+    Table: number;
+    Urinals: number;
+    Floor: number;
+    Lights: number;
+    Mirror: number;
+    Toilets: number;
+  };
   anonymity: string;
+  assignee: string;
 }
 
 export default function IssueDetails() {
   const navigation = useNavigation();
   const user = useUser();
   const params = useGlobalSearchParams();
-  const issue: Issue = params.issue
+  let issue: Issue = params.issue
     ? JSON.parse(Array.isArray(params.issue) ? params.issue[0] : params.issue)
     : null;
 
+  console.log(user);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState(issue.comments);
+
+  const getRatingText = (rating: number | null | undefined) => {
+    if (rating === null || rating === undefined) {
+      return "Unknown rating";
+    }
+
+    switch (rating) {
+      case 1:
+        return "Poor";
+      case 2:
+        return "Satisfactory";
+      case 3:
+        return "Average";
+      default:
+        return "Unknown rating";
+    }
+  };
 
   const handleAddComment = async () => {
     try {
       if (newComment.trim()) {
-        const newCommentObj = {
+        let newCommentObj = {
           date: new Date().toLocaleString(),
           by: user.id, // replace with actual current user ID
-          content: newComment,
+          content: [{ by: user.id, content: newComment }],
         };
-        setComments([...comments, newCommentObj]);
+
+        // Prepare the request body
         const body = {
           user_id: user.id,
           content: newComment,
         };
+
+        // Send the comment to the backend
         const response = await axios.post(
           `${BACKEND_URL}/task/add-comment/${issue.issueNo}`,
           body
         );
+
+        // If successful, update the local state
         if (response.status === 200) {
+          setComments((prevComments: any) => [...prevComments, newCommentObj]);
+          console.log(comments);
+          setNewComment(""); // Clear the input
           Alert.alert("Comment added successfully");
         }
-        setNewComment("");
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -83,6 +130,33 @@ export default function IssueDetails() {
       } else {
         console.error("Unexpected Error:", error);
         Alert.alert("Failed to add comment", "An unexpected error occurred.");
+      }
+    }
+  };
+
+  const assignIssue = async () => {
+    try {
+      const body = {
+        issueNo: issue.issueNo,
+        assignee: user.id,
+      };
+
+      const response = await axios.post(
+        `${BACKEND_URL}/client/assign_issue`,
+        body
+      );
+
+      if (response.status === 200) {
+        Alert.alert("Issue assigned successfully");
+        issue.assignee = user.id;
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.response?.data || error.message);
+        Alert.alert("Failed to assign issue", `Error: ${error.message}`);
+      } else {
+        console.error("Unexpected Error:", error);
+        Alert.alert("Failed to assign issue", "An unexpected error occurred.");
       }
     }
   };
@@ -115,6 +189,14 @@ export default function IssueDetails() {
         Alert.alert("Failed to reopen issue", "An unexpected error occurred.");
       }
     }
+  };
+
+  const handlePrintToPDF = () => {
+    const issueCode = `${issue?.issueNo}`; // Replace this with the actual issue code dynamically
+    const pdfURL = `${BACKEND_URL}/task/export/${issueCode}`;
+    Linking.openURL(pdfURL).catch((err) =>
+      console.error("Failed to open URL:", err)
+    );
   };
 
   const CloseIssue = async () => {
@@ -201,7 +283,7 @@ export default function IssueDetails() {
           <View style={{ marginTop: 20, gap: 10 }}>
             <Text style={styles.detailsText}>Issue ID: {issue?.issueNo}</Text>
             <Text style={styles.detailsText}>
-              Raised By: {issue?.raised_by.name}{" "}
+              Raised By: {issue?.raised_by.name}
             </Text>
             <Text style={styles.detailsText}>
               Location: Floor:{issue?.issue.floor} - Block: {issue?.issue.block}
@@ -228,6 +310,86 @@ export default function IssueDetails() {
             <Text style={styles.detailsText}>
               Action Item: {issue?.issue.actionItem}
             </Text>
+            <Text style={styles.detailsText}>
+              Assigned to :{" "}
+              {!issue?.assignee ? "Not Assigned" : issue?.assignee}
+            </Text>
+            <Text style={styles.commentsHeading}>Survey Details</Text>
+            <View
+              style={{
+                width: "100%",
+                height: "0.1%",
+                backgroundColor: "black",
+                marginBottom: 10,
+              }}
+            ></View>
+            {issue?.issue.issueType === "Complaint" ? (
+              <Text>No survey details to display</Text>
+            ) : (
+              <>
+                {issue?.issue.actionItem === "Classroom" && (
+                  <>
+                    <Text style={styles.detailsText}>
+                      Table: {getRatingText(issue?.survey.Table)}
+                    </Text>
+                    <Text style={styles.detailsText}>
+                      Chair: {getRatingText(issue?.survey.Chair)}
+                    </Text>
+                    <Text style={styles.detailsText}>
+                      Projector: {getRatingText(issue?.survey.Projector)}
+                    </Text>
+                    <Text style={styles.detailsText}>
+                      Cleanliness: {getRatingText(issue?.survey.Cleanliness)}
+                    </Text>
+                  </>
+                )}
+                {issue?.issue.actionItem === "Restroom" && (
+                  <>
+                    <Text style={styles.detailsText}>
+                      Mirror & Washbasin: {getRatingText(issue?.survey.Mirror)}
+                    </Text>
+                    <Text style={styles.detailsText}>
+                      Urinals: {getRatingText(issue?.survey.Urinals)}
+                    </Text>
+                    <Text style={styles.detailsText}>
+                      Toilets: {getRatingText(issue?.survey.Toilets)}
+                    </Text>
+                    <Text style={styles.detailsText}>
+                      Floor: {getRatingText(issue?.survey.Floor)}
+                    </Text>
+                    <Text style={styles.detailsText}>
+                      Lights: {getRatingText(issue?.survey.Lights)}
+                    </Text>
+                  </>
+                )}
+                {issue?.issue.actionItem === "Department" && (
+                  <>
+                    <Text style={styles.detailsText}>
+                      Cleanliness: {getRatingText(issue?.survey.Cleanliness)}
+                    </Text>
+                  </>
+                )}
+                {issue?.issue.actionItem === "Miscellaneous" && (
+                  <Text>No survey details to display</Text>
+                )}
+                {issue?.issue.actionItem === "Water Dispenser" && (
+                  <>
+                    <Text>
+                      Cleanliness: {getRatingText(issue?.survey.Cleanliness)}
+                    </Text>
+                    <Text>
+                      Functionality:{" "}
+                      {getRatingText(issue?.survey.Functionality)}
+                    </Text>
+                  </>
+                )}
+                {issue?.issue.actionItem === "Lift" && (
+                  <Text>
+                    Cleanliness: {getRatingText(issue?.survey.Cleanliness)}
+                  </Text>
+                )}
+              </>
+            )}
           </View>
           {issue?.status === "OPEN" ? (
             <TouchableOpacity
@@ -249,9 +411,22 @@ export default function IssueDetails() {
             </TouchableOpacity>
           )}
 
+          {issue.issue.issueType === "Complaint" &&
+            (issue?.assignee === user.id || issue.assignee != null ? (
+              <TouchableOpacity style={styles.closeButton} disabled={true}>
+                <Text style={styles.closeButtonText}>ASSIGNED</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={assignIssue}
+              >
+                <Text style={styles.closeButtonText}>ASSIGN ISSUE</Text>
+              </TouchableOpacity>
+            ))}
           <Text style={styles.commentsHeading}>COMMENTS</Text>
-          {issue?.comments && issue.comments.length > 0 ? (
-            issue.comments.map((comment, index) => (
+          {comments && comments.length > 0 ? (
+            comments.map((comment, index) => (
               <View key={index} style={styles.commentBox}>
                 <Text style={styles.commentUser}>{comment.by}</Text>
                 <Text style={styles.commentContent}>{comment.date}</Text>
@@ -287,6 +462,12 @@ export default function IssueDetails() {
               <AntDesign name="plus" size={15} color="#555555" />
             </TouchableOpacity>
           </View>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={handlePrintToPDF}
+          >
+            <Text style={styles.closeButtonText}>Print Issue to PDF</Text>
+          </TouchableOpacity>
         </View>
       </KeyboardAwareScrollView>
     </ScrollView>
