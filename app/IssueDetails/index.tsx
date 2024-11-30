@@ -313,8 +313,7 @@ export default function IssueDetails() {
               Action Item: {issue?.issue.actionItem}
             </Text>
             <Text style={styles.detailsText}>
-              Assigned to :{" "}
-              {!issue?.assignee ? "Not Assigned" : issue?.assignee}
+              Claimed by : {!issue?.assignee ? "Not Assigned" : issue?.assignee}
             </Text>
             <Text style={styles.commentsHeading}>Survey Details</Text>
             <View
@@ -424,7 +423,7 @@ export default function IssueDetails() {
                 style={styles.closeButton}
                 onPress={assignIssue}
               >
-                <Text style={styles.closeButtonText}>ASSIGN ISSUE</Text>
+                <Text style={styles.closeButtonText}>CLAIM ISSUE</Text>
               </TouchableOpacity>
             ))}
           <Text style={styles.commentsHeading}>Report Log</Text>
