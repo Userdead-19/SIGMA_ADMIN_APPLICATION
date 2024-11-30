@@ -107,7 +107,6 @@ export default function TabLayout() {
   }, [navigation]);
 
   const user = useUser();
-  console.log(user);
 
   return (
     <View

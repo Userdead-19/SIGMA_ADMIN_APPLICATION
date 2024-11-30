@@ -92,8 +92,6 @@ const LoginScreen = () => {
           Alert.alert("Session expired", "Please login again");
         }
       } else {
-        // No token found
-        console.log("No token found");
       }
     } catch (error) {
       console.log("Error during token check");
@@ -139,7 +137,6 @@ const LoginScreen = () => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
-  console.log(state.email);
   const resetPassword = async () => {
     if (state.email === "") {
       Toast.show({
@@ -156,7 +153,6 @@ const LoginScreen = () => {
           `${BACKEND_URL}/manager/forgot_password`,
           body
         );
-        console.log(response.data);
         Toast.show({
           type: "success",
           text1: "Reset link sent to your registered email",
@@ -164,6 +160,11 @@ const LoginScreen = () => {
         });
       } catch (error) {
         console.log(error);
+        Toast.show({
+          type: "error",
+          text1: "Failed to reset password",
+          visibilityTime: 3000,
+        });
       }
     }
   };
@@ -174,11 +175,10 @@ const LoginScreen = () => {
         id: state.email,
         password: state.password,
       });
-      console.log(response.data);
       await AsyncStorage.setItem("admin-token", response.data.token);
       dispatch({ type: "LOGIN_SUCCESS", payload: response.data });
       const token = await AsyncStorage.getItem("admin-token");
-      console.log(token);
+
       updateUser({
         name: response.data.user.name,
         id: response.data.user.id,

@@ -133,12 +133,12 @@ const StatisticsPage: React.FC = () => {
     closedSuggestion: number,
     totSuggestion: number
   ) => {
-    if (totComplaint > 0 && totSuggestion > 0) {
-      const complaintEfficiency = (closedComplaint / totComplaint) * 100;
-      const suggestionEfficiency = (closedSuggestion / totSuggestion) * 100;
-      const efficiency = 0.6 * complaintEfficiency + 0.4 * suggestionEfficiency;
-      setWorkEfficiency(efficiency);
-    }
+    const complaintEfficiency = (closedComplaint / totComplaint) * 100;
+    const suggestionEfficiency = (closedSuggestion / totSuggestion) * 100;
+
+    const efficiency = 0.6 * complaintEfficiency + 0.4 * suggestionEfficiency;
+
+    setWorkEfficiency(efficiency);
   };
 
   useEffect(() => {
@@ -157,22 +157,25 @@ const StatisticsPage: React.FC = () => {
       let totSuggestion = 0;
 
       data.forEach((item) => {
-        const category = item.issue.issueCat;
+        let category = item.issue.issueCat;
+        if (!category) {
+          category = "Miscellaneous";
+        }
 
         // Counting categories
         categoryCount[category] = (categoryCount[category] || 0) + 1;
 
         // Counting based on issue type and status
-        if (item.status === "CLOSE" && item.issue.issueType === "ISSUE") {
+        if (item.status === "CLOSE" && item.issue.issueType === "Complaint") {
           closedComplaint++;
         }
-        if (item.issue.issueType === "ISSUE") {
+        if (item.issue.issueType === "Complaint") {
           totComplaint++;
         }
-        if (item.status === "CLOSE" && item.issue.issueType === "FEEDBACK") {
+        if (item.status === "CLOSE" && item.issue.issueType === "Feedback") {
           closedSuggestion++;
         }
-        if (item.issue.issueType === "FEEDBACK") {
+        if (item.issue.issueType === "Feedback") {
           totSuggestion++;
         }
       });
@@ -216,7 +219,7 @@ const StatisticsPage: React.FC = () => {
     try {
       const fromDate = formatDateToDDMMYYYY(customStartDate);
       const toDate = formatDateToDDMMYYYY(customEndDate);
-      console.log(fromDate, toDate);
+
       const pdfURL = `${BACKEND_URL}/manager/generate-pdf?from=${fromDate}&to=${toDate}`;
       await Linking.openURL(pdfURL);
     } catch (error) {

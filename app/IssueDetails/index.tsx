@@ -245,7 +245,9 @@ export default function IssueDetails() {
               <Text
                 style={{ fontWeight: "bold", fontSize: 20, color: "black" }}
               >
-                {issue?.issue.issueCat}
+                {issue.issue.issueCat !== ""
+                  ? issue.issue.issueCat
+                  : "Miscellaneous"}
               </Text>
             </View>
             <View>
@@ -391,25 +393,26 @@ export default function IssueDetails() {
               </>
             )}
           </View>
-          {issue?.status === "OPEN" ? (
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                CloseIssue();
-              }}
-            >
-              <Text style={styles.closeButtonText}>CLOSE THIS ISSUE</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                reopenIssue();
-              }}
-            >
-              <Text style={styles.closeButtonText}>REOPEN THIS ISSUE</Text>
-            </TouchableOpacity>
-          )}
+          {issue.issue.issueType === "Complaint" &&
+            (issue?.status === "OPEN" ? (
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => {
+                  CloseIssue();
+                }}
+              >
+                <Text style={styles.closeButtonText}>CLOSE THIS ISSUE</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => {
+                  reopenIssue();
+                }}
+              >
+                <Text style={styles.closeButtonText}>REOPEN THIS ISSUE</Text>
+              </TouchableOpacity>
+            ))}
 
           {issue.issue.issueType === "Complaint" &&
             (issue?.assignee === user.id || issue.assignee != null ? (
@@ -424,44 +427,67 @@ export default function IssueDetails() {
                 <Text style={styles.closeButtonText}>ASSIGN ISSUE</Text>
               </TouchableOpacity>
             ))}
-          <Text style={styles.commentsHeading}>COMMENTS</Text>
-          {comments && comments.length > 0 ? (
-            comments.map((comment, index) => (
+          <Text style={styles.commentsHeading}>Report Log</Text>
+          <View style={styles.divider}></View>
+          {issue?.log && issue.log.length > 0 ? (
+            issue.log.map((log, index) => (
               <View key={index} style={styles.commentBox}>
-                <Text style={styles.commentUser}>{comment.by}</Text>
-                <Text style={styles.commentContent}>{comment.date}</Text>
-
-                {Array.isArray(comment.content) && comment.content.length > 0
-                  ? comment.content.map((nestedComment, nestedIndex) => (
-                      <View key={nestedIndex}>
-                        <Text style={styles.commentContent}>
-                          Comment : {nestedComment.content}
-                        </Text>
-                      </View>
-                    ))
-                  : null}
+                <Text style={styles.commentUser}>{log.by}</Text>
+                <Text style={styles.commentContent}>
+                  {log.action} on {log.date}
+                </Text>
               </View>
             ))
           ) : (
             <Text style={{ alignSelf: "center", margin: 10 }}>
-              No comments available
+              No logs available
             </Text>
           )}
+          {issue.issue.issueType === "Complaint" && (
+            <>
+              <Text style={styles.commentsHeading}>COMMENTS</Text>
+              {comments && comments.length > 0 ? (
+                comments.map((comment, index) => (
+                  <View key={index} style={styles.commentBox}>
+                    <Text style={styles.commentUser}>{comment.by}</Text>
+                    <Text style={styles.commentContent}>{comment.date}</Text>
 
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.textInput}
-              value={newComment}
-              onChangeText={setNewComment}
-              placeholder="Add a comment"
-            />
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={handleAddComment}
-            >
-              <AntDesign name="plus" size={15} color="#555555" />
-            </TouchableOpacity>
-          </View>
+                    {Array.isArray(comment.content) &&
+                    comment.content.length > 0
+                      ? comment.content.map((nestedComment, nestedIndex) => (
+                          <View key={nestedIndex}>
+                            <Text style={styles.commentContent}>
+                              Comment : {nestedComment.content}
+                            </Text>
+                          </View>
+                        ))
+                      : null}
+                  </View>
+                ))
+              ) : (
+                <Text style={{ alignSelf: "center", margin: 10 }}>
+                  No comments available
+                </Text>
+              )}
+            </>
+          )}
+
+          {issue.issue.issueType === "Complaint" && (
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.textInput}
+                value={newComment}
+                onChangeText={setNewComment}
+                placeholder="Add a comment"
+              />
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={handleAddComment}
+              >
+                <AntDesign name="plus" size={15} color="#555555" />
+              </TouchableOpacity>
+            </View>
+          )}
           <TouchableOpacity
             style={styles.closeButton}
             onPress={handlePrintToPDF}
@@ -487,6 +513,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.05,
     backgroundColor: "#FFFFFF",
     minHeight: height,
+  },
+  divider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "black",
+    marginBottom: 10,
   },
   closeButton: {
     borderWidth: 1,
