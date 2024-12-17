@@ -8,7 +8,6 @@ import {
   Image,
 } from "react-native";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import { ArrowUpRightIcon, UserIcon } from "react-native-heroicons/outline";
 import tw from "twrnc";
 import { router } from "expo-router";
@@ -79,7 +78,7 @@ const LostandFoundCard = ({ issue }: { issue: any }) => (
         style={tw`bg-blue-500 p-4 rounded-full`}
         onPress={() =>
           router.push({
-            pathname: "/IssueDetails",
+            pathname: "/IssueDetails/LostandFoundDetails",
             params: { issue: JSON.stringify(issue) },
           })
         }
