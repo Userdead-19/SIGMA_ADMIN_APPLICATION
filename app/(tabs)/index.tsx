@@ -107,6 +107,9 @@ const LoginScreen = () => {
       if (response.status === 200) {
         console.log("Server is up and running");
         return true;
+      } else {
+        console.log("Server is down");
+        return false;
       }
     } catch (error) {
       console.log("Server is down");

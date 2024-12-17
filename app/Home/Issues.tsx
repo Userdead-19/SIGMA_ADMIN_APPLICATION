@@ -19,6 +19,7 @@ import Card from "@/components/Card";
 import axios from "axios";
 import { router, useFocusEffect, useNavigation } from "expo-router";
 import { BACKEND_URL } from "@/production.config";
+import LostandFoundCard from "@/components/LostandFoundCard";
 
 interface Issue {
   _id: { $oid: string };
@@ -52,8 +53,8 @@ const SET_VIEW_MODE = "SET_VIEW_MODE";
 const SET_SEARCH_QUERY = "SET_SEARCH_QUERY";
 const SET_LOADING = "SET_LOADING";
 const SET_ERROR = "SET_ERROR";
+const SET_LOSTANDFOUND = "SET_LOSTANDFOUND";
 
-// Define initial state
 const initialState = {
   currentStage: "Current",
   issues: [] as Issue[],
@@ -62,6 +63,7 @@ const initialState = {
   searchQuery: "",
   loading: false,
   error: null as string | null,
+  lostandFoundItems: [] as any[],
 };
 
 // Define reducer function
@@ -73,16 +75,25 @@ const reducer = (state: typeof initialState, action: any) => {
         issues: action.payload,
         filteredIssues: filterIssues(
           action.payload,
+          state.lostandFoundItems,
           state.currentStage,
           state.searchQuery
         ),
         loading: false,
         error: null,
       };
-    case SET_FILTERED_ISSUES:
+    case SET_LOSTANDFOUND:
       return {
         ...state,
-        filteredIssues: action.payload,
+        lostandFoundItems: action.payload,
+        filteredIssues: filterIssues(
+          state.issues,
+          action.payload,
+          state.currentStage,
+          state.searchQuery
+        ),
+        loading: false,
+        error: null,
       };
     case SET_CURRENT_STAGE:
       return {
@@ -90,14 +101,10 @@ const reducer = (state: typeof initialState, action: any) => {
         currentStage: action.payload,
         filteredIssues: filterIssues(
           state.issues,
+          state.lostandFoundItems,
           action.payload,
           state.searchQuery
         ),
-      };
-    case SET_VIEW_MODE:
-      return {
-        ...state,
-        viewMode: action.payload,
       };
     case SET_SEARCH_QUERY:
       return {
@@ -105,37 +112,55 @@ const reducer = (state: typeof initialState, action: any) => {
         searchQuery: action.payload,
         filteredIssues: filterIssues(
           state.issues,
+          state.lostandFoundItems,
           state.currentStage,
           action.payload
         ),
       };
     case SET_LOADING:
-      return {
-        ...state,
-        loading: action.payload,
-      };
+      return { ...state, loading: action.payload };
     case SET_ERROR:
-      return {
-        ...state,
-        error: action.payload,
-        loading: false,
-      };
+      return { ...state, error: action.payload, loading: false };
     default:
       return state;
   }
 };
 
 // Filter issues based on stage and search query
-const filterIssues = (issues: Issue[], stage: string, query: string) => {
+const filterIssues = (
+  issues: Issue[],
+  lostandFoundItems: any[],
+  stage: string,
+  query: string
+) => {
   const lowerCaseQuery = query.toLowerCase();
+
+  if (stage === "Lost and Found") {
+    // Filter Lost and Found items separately
+    return lostandFoundItems.filter((item) => {
+      const itemContent = item.itemContent || "";
+      const itemNo = item.itemNo || "";
+      return (
+        itemContent.toLowerCase().includes(lowerCaseQuery) ||
+        itemNo.toLowerCase().includes(lowerCaseQuery)
+      );
+    });
+  }
+
+  // Filter Current or Resolved issues
   return issues.filter((issue) => {
-    const isStageMatch =
-      stage === "Current" ? issue.status === "OPEN" : issue.status === "CLOSE";
+    let isStageMatch = false;
+
+    if (stage === "Current") isStageMatch = issue.status === "OPEN";
+    else if (stage === "Resolved") isStageMatch = issue.status === "CLOSE";
+
     const issueContent = issue.issue?.issueContent || "";
     const issueNo = issue.issueNo || "";
+
     const isQueryMatch =
       issueContent.toLowerCase().includes(lowerCaseQuery) ||
       issueNo.toLowerCase().includes(lowerCaseQuery);
+
     return isStageMatch && isQueryMatch;
   });
 };
@@ -178,18 +203,44 @@ const IssuePage = () => {
         payload: error.message || "An unexpected error occurred.",
       });
     }
-  }, []);
+  }, []); // Empty dependency array to ensure this is created only once.
+
+  const fetchAllLostandFound = useCallback(async () => {
+    dispatch({ type: SET_LOADING, payload: true });
+    try {
+      const response = await axios.get(`${BACKEND_URL}/get_all_lost_items`);
+      if (response.data && response.data.lost_items) {
+        dispatch({ type: SET_LOSTANDFOUND, payload: response.data.lost_items });
+      } else {
+        dispatch({
+          type: SET_ERROR,
+          payload: "Invalid response from server.",
+        });
+      }
+    } catch (error: any) {
+      console.error("Error fetching issues:", error);
+      dispatch({
+        type: SET_ERROR,
+        payload: error.message || "An unexpected error occurred.",
+      });
+    }
+  }, []); // Empty dependency array to ensure this is created only once.
 
   useFocusEffect(
     useCallback(() => {
       fetchAllIssues();
-    }, [fetchAllIssues])
+      fetchAllLostandFound();
+    }, [fetchAllIssues, fetchAllLostandFound]) // Ensure the functions are only called once when the component is focused.
   );
 
   const handleButtonPress = (stage: string) => {
     dispatch({ type: SET_CURRENT_STAGE, payload: stage });
+
+    const animationValue =
+      stage === "Current" ? 0 : stage === "Resolved" ? 0.7 : 1.4;
+
     Animated.timing(slideAnim, {
-      toValue: stage === "Current" ? 0 : 1,
+      toValue: animationValue,
       duration: 300,
       useNativeDriver: false,
     }).start();
@@ -238,7 +289,9 @@ const IssuePage = () => {
     if (state.viewMode === "Tile") {
       return (
         <TouchableOpacity onPress={() => handleItemPress(item)}>
-          <Card issue={item} />
+          {(state.currentStage === "Lost and Found" && (
+            <LostandFoundCard issue={item} />
+          )) || <Card issue={item} />}
         </TouchableOpacity>
       );
     } else {
@@ -287,6 +340,20 @@ const IssuePage = () => {
             Resolved
           </Text>
         </TouchableOpacity>
+        {/* New Lost and Found Button */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => handleButtonPress("Lost and Found")}
+        >
+          <Text
+            style={[
+              styles.buttonText,
+              state.currentStage === "Lost and Found" && styles.selectedText,
+            ]}
+          >
+            Lost and Found
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* View Mode Toggle */}
@@ -326,7 +393,10 @@ const IssuePage = () => {
       ) : state.error ? (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{state.error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchAllIssues}>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={fetchAllIssues || fetchAllLostandFound}
+          >
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -348,7 +418,6 @@ const IssuePage = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -356,7 +425,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
-    width: "80%",
+    width: "90%",
     height: 50,
     backgroundColor: "#ddd",
     borderRadius: 25,
@@ -376,7 +445,7 @@ const styles = StyleSheet.create({
   },
   selectedBackground: {
     position: "absolute",
-    width: "50%",
+    width: "30%",
     height: "100%",
     backgroundColor: "#347aeb",
     borderRadius: 25,
