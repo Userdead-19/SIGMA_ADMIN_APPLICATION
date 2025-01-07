@@ -36,46 +36,57 @@ const { width } = Dimensions.get("window");
 //   anonymity: string;
 // }
 
-const LostandFoundCard = ({ issue }: { issue: any }) => (
-  <View style={tw`bg-white rounded-2xl p-4 mb-4 shadow`}>
-    <Text style={tw`font-bold mb-2 uppercase`}>
-      {issue.item_details.item_name}
-    </Text>
-    <View style={tw`flex-row flex-wrap items-center mb-2 gap-4`}>
-      <View style={tw`flex-1`}>
-        <Text style={tw`text-xs text-gray-600`}>Last Seen</Text>
-        <Text
-          style={[tw`text-base text-black font-semibold text-lg`]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {issue.last_seen_location}
-        </Text>
+const LostandFoundCard = ({ item: issue }: { item: any }) => (
+  <View style={styles.cardContainer}>
+    <View style={styles.rowContainer}>
+      <View style={styles.imageContainer}>
+        {issue?.images?.length > 0 ? (
+          issue.images.map((image: any, index: any) => (
+            <Image key={index} source={{ uri: image }} style={styles.image} />
+          ))
+        ) : (
+          <Text>No images attached.</Text>
+        )}
       </View>
-      <View style={tw`flex-1`}>
-        <Text style={tw`text-xs text-gray-600`}>Date Lost</Text>
-        <Text
-          style={[tw`text-base text-black font-semibold text-lg`]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {issue.date_lost}
-        </Text>
+      <View style={styles.textContainer}>
+        <Text style={styles.cardTitle}>{issue.item_details.item_name}</Text>
+        <View style={styles.rowContainer}>
+          <View style={styles.infoBlock}>
+            <Text style={styles.infoHeading}>Last Seen</Text>
+            <Text
+              style={styles.infoContent}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {issue.last_seen_location}
+            </Text>
+          </View>
+          <View style={styles.infoBlock}>
+            <Text style={styles.infoHeading}>Date Lost</Text>
+            <Text
+              style={styles.infoContent}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {issue.date_lost}
+            </Text>
+          </View>
+        </View>
       </View>
     </View>
-    <View style={tw`border-t border-gray-200 mt-2 mb-4`} />
-    <View style={tw`flex-row items-center`}>
+    <View style={styles.divider} />
+    <View style={styles.userContainer}>
       <Ionicons name="person-circle" size={40} color="gray" />
-      <View style={tw`ml-4 flex-1`}>
-        <Text style={tw`text-base font-bold`} numberOfLines={1}>
+      <View style={styles.userInfo}>
+        <Text style={styles.userName} numberOfLines={1}>
           {issue.name}
         </Text>
-        <Text style={tw`text-xs text-gray-600`} numberOfLines={1}>
+        <Text style={styles.userRollNo} numberOfLines={1}>
           {issue.roll_no}
         </Text>
       </View>
       <TouchableOpacity
-        style={tw`bg-blue-500 p-4 rounded-full`}
+        style={styles.button}
         onPress={() =>
           router.push({
             pathname: "/IssueDetails/LostandFoundDetails",
@@ -83,121 +94,164 @@ const LostandFoundCard = ({ issue }: { issue: any }) => (
           })
         }
       >
-        <ArrowUpRightIcon size={20} color="white" />
+        <View>
+          <Text style={styles.userI}>View More</Text>
+        </View>
       </TouchableOpacity>
     </View>
   </View>
 );
+
 const styles = StyleSheet.create({
-  user: {
-    flexDirection: "row",
-    alignItems: "center",
+  scrollView: {
+    backgroundColor: "#FFFFFF",
+    flexGrow: 1,
+    padding: "2%",
+    marginBottom: "12%",
   },
-  userImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  container: {
-    paddingTop: 40,
-    flex: 1,
-    backgroundColor: "#F2F2F2",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: "4%",
-    marginTop: "-10%",
-  },
-  iconContainer: {
-    width: "8%",
-    height: "120%",
-    borderRadius: 20,
+  // addButton: {
+  //   position: "absolute",
+  //   bottom:'-4%',
+  //   right: 20,
+  //   alignItems: "center",
+  //   justifyContent: "center",
+  // },
+  cardContainer: {
     backgroundColor: "white",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "absolute",
-    left: width * 0.05,
-    zIndex: 1,
-    top: "-10%",
-  },
-  headingText: {
-    fontSize: 19,
-    fontWeight: "bold",
-    color: "#555555",
-    textAlign: "center",
-    flex: 1,
-  },
-  mainText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 10,
-  },
-  dateTimeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginVertical: 5,
-  },
-  dateTimeItem: {
-    flex: 0.5,
-  },
-  dateTimeHeading: {
-    marginLeft: "5%",
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#555",
-    marginBottom: 5,
-  },
-  dateTimeValue: {
-    marginLeft: "4%",
-    fontSize: 16,
-    color: "#333",
-  },
-  userDateTimeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  detailButton: {
-    padding: 10,
-  },
-  dateTimeDetails: {
-    marginLeft: 30,
-  },
-  dateTimeSmallText: {
-    fontSize: 12,
-    color: "#555",
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    marginTop: "5%",
-    marginLeft: "4%",
-    marginRight: "4%",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  line: {
-    borderTopWidth: 1,
-    borderTopColor: "gray",
-    marginVertical: "3%",
-  },
-  nameText: {
+  cardTitle: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "bold",
+    marginBottom: 8,
+    textTransform: "uppercase",
+    color: "#333",
   },
-  userTitleText: {
+  rowContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    marginBottom: 8,
+    gap: 16,
+  },
+  infoBlock: {
+    flex: 1,
+  },
+  infoHeading: {
+    fontSize: 12,
+    color: "gray",
+    marginBottom: 4,
+  },
+  infoContent: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000",
+  },
+  divider: {
+    borderTopWidth: 1,
+    borderTopColor: "#E0E0E0",
+    marginVertical: 8,
+  },
+  userContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  userInfo: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  userI: {
+    color: "#fff",
+    fontSize: 9,
+    textAlign: "center",
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  userRollNo: {
     fontSize: 12,
     color: "gray",
   },
-  suHeadingText: {
+  button: {
+    backgroundColor: "#8283e9",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    alignSelf: "flex-start",
+    marginTop: "3%",
+  },
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#e6e6e4",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    flex: 1,
+  },
+  addButton: {
+    marginLeft: 8,
+  },
+
+  // searchContainer: {
+  //   flexDirection: "row",
+  //   alignItems: "center",
+  //   backgroundColor: "#e6e6e4",
+  //   borderRadius: 8,
+  //   paddingHorizontal: 8,
+  //   marginVertical: 16,
+  // },
+  searchIcon: {
+    marginRight: 8,
+  },
+  imageContainer: {
+    flex: 0.3,
+    marginRight: 16,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+  },
+  textContainer: {
+    flex: 0.7,
+    flexDirection: "column",
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
     fontSize: 14,
-    color: "gray",
+    color: "#333",
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  loaderContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 40,
+  },
+  noComplaintsText: {
+    textAlign: "center",
+    marginTop: 20,
+    color: "#555",
+    fontSize: 16,
   },
 });
-
 export default LostandFoundCard;

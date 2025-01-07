@@ -290,7 +290,7 @@ const IssuePage = () => {
       return (
         <TouchableOpacity onPress={() => handleItemPress(item)}>
           {(state.currentStage === "Lost and Found" && (
-            <LostandFoundCard issue={item} />
+            <LostandFoundCard item={item} />
           )) || <Card issue={item} />}
         </TouchableOpacity>
       );
